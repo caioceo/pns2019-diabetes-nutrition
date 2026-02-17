@@ -14,3 +14,6 @@ env/
 # Sistema operacional
 .DS_Store
 Thumbs.db
+
+# Arquivos grandes de dados brutos
+data/raw/pns/pns2019.csv
