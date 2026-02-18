@@ -10,7 +10,9 @@ atributos_gerais = {
     "P00103": 'peso_informado',
     "P00104": 'peso_final',
     "P00404": 'altura_final',
-    'A009010': 'qualidade_agua', 
+    "C006": 'sexo',
+    "C008": 'idade',
+    'A009010': 'qualidade_agua'
     }
 
 atributos_frequencia_alimentar_semanal = {

@@ -1,9 +1,11 @@
-| Atributos   | Descricao                                                   |
+| Atributos   | Descrição                                                   |
 |:------------|:------------------------------------------------------------|
 | Q03001      | Diabetes                                                    |
 | P00103      | Peso_informado                                              |
 | P00104      | Peso_final                                                  |
 | P00404      | Altura_final                                                |
+| C006        | Sexo                                                        |
+| C008        | Idade                                                       |
 | A009010     | Qualidade_agua                                              |
 | P006        | Feijao                                                      |
 | P00901      | Legumes e verduras (exceto batata, mandioca, cara e inhame) |
