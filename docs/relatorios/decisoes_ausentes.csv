@@ -1,0 +1,45 @@
+coluna,tipo,pct_ausentes,mecanismo,estrategia,justificativa
+P04001,categorico_ordinal,73.95,N/A,REMOVER_COLUNA,74.0% ausentes > limiar de 70%
+P04101,categorico_ordinal,74.21,N/A,REMOVER_COLUNA,74.2% ausentes > limiar de 70%
+P04102,numerico_continuo,74.21,N/A,REMOVER_COLUNA,74.2% ausentes > limiar de 70%
+Q00201,categorico_ordinal,0.0,N/A,REMOVER_CONSTANTE,"Variável constante (n_distinct=1), inútil para ML"
+Q00202,categorico,100.0,N/A,REMOVER_COLUNA,100.0% ausentes > limiar de 70%
+Q00401,categorico,100.0,N/A,REMOVER_COLUNA,100.0% ausentes > limiar de 70%
+Q00503,categorico,100.0,N/A,REMOVER_COLUNA,100.0% ausentes > limiar de 70%
+Q00601,categorico,100.0,N/A,REMOVER_COLUNA,100.0% ausentes > limiar de 70%
+Q03201,categorico_ordinal,97.55,N/A,REMOVER_COLUNA,97.6% ausentes > limiar de 70%
+W00101,numerico_continuo,93.05,N/A,REMOVER_COLUNA,93.1% ausentes > limiar de 70%
+W00102,numerico_continuo,93.05,N/A,REMOVER_COLUNA,93.1% ausentes > limiar de 70%
+W00201,numerico_continuo,93.07,N/A,REMOVER_COLUNA,93.1% ausentes > limiar de 70%
+W00202,numerico_continuo,93.07,N/A,REMOVER_COLUNA,93.1% ausentes > limiar de 70%
+W00203,numerico_continuo,92.95,N/A,REMOVER_COLUNA,93.0% ausentes > limiar de 70%
+W00103,numerico_continuo,92.95,N/A,REMOVER_COLUNA,93.0% ausentes > limiar de 70%
+P051,categorico_ordinal,98.8,N/A,REMOVER_COLUNA,98.8% ausentes > limiar de 70%
+P05401,categorico_ordinal,88.09,N/A,REMOVER_COLUNA,88.1% ausentes > limiar de 70%
+P060,categorico_ordinal,88.09,N/A,REMOVER_COLUNA,88.1% ausentes > limiar de 70%
+P03702,continua,1.27,MAR,MEDIANA (0.0000),|skewness|=0.64 ≥ 0.5 → dist. assimétrica → mediana
+P036,continua,1.27,MAR,MEDIA (5.7217),|skewness|=0.00 < 0.5 → dist. normal → média
+Q031,continua,0.26,MAR,MEDIANA (43.0000),|skewness|=0.87 ≥ 0.5 → dist. assimétrica → mediana
+P00103,continua,6.51,MAR,KNN (k=5),"6.5% ausentes entre 5–30% → KNN com vizinhos: ['P00104', 'P00404', 'P00403', 'C006', 'P027']"
+P00104,continua,0.94,MAR,MEDIANA (72.0000),|skewness|=0.68 ≥ 0.5 → dist. assimétrica → mediana
+P00403,continua,11.8,MAR,KNN (k=5),"11.8% ausentes entre 5–30% → KNN com vizinhos: ['P00404', 'C006', 'P00104', 'P00103', 'VDF004']"
+P00404,continua,0.94,MAR,MEDIA (166.3682),|skewness|=0.08 < 0.5 → dist. normal → média
+P029,continua,54.46,MAR,REGRESSAO_LINEAR,"54.5% ausentes > 30% → regressão com ['V0001', 'P027', 'C006', 'I00102', 'C011', 'P00607']"
+VDF003,continua,0.05,MAR,MEDIANA (938.0000),|skewness|=8.77 ≥ 0.5 → dist. assimétrica → mediana
+J012,continua,29.46,MAR,KNN (k=5),"29.5% ausentes entre 5–30% → KNN com vizinhos: ['Q02901', 'C006', 'Q00101', 'I00102', 'N011']"
+E017,continua,21.39,MAR,KNN (k=5),"21.4% ausentes entre 5–30% → KNN com vizinhos: ['C006', 'P00404', 'P00403', 'VDE014', 'VDF004']"
+P038,binaria,21.39,MAR,MODA (2.0),Variável binária → moda
+P039,binaria,21.39,MAR,MODA (2.0),Variável binária → moda
+P03201,binaria,54.46,MAR,MODA (2.0),Variável binária → moda
+M005010,binaria,21.39,MAR,MODA (2.0),Variável binária → moda
+P01001,categorica,40.5,MAR,MODA (1.0),Variável categórica → moda
+P019,categorica,47.21,MAR,MODA (1.0),Variável categórica → moda
+P02102,categorica,50.16,MCAR,MODA (2.0),Variável categórica → moda
+P02401,categorica,30.28,MAR,MODA (2.0),Variável categórica → moda
+P02101,categorica,65.66,MAR,MODA (2.0),Variável categórica → moda
+P03701,categorica,1.27,MAR,MODA (0.0),Variável categórica → moda
+P040,categorica,21.39,MAR,MODA (3.0),Variável categórica → moda
+VDM001,categorica,31.42,MAR,MODA (1.0),Variável categórica → moda
+P02801,categorica,67.83,MAR,MODA (1.0),Variável categórica → moda
+VDF004,categorica,0.05,MAR,MODA (3.0),Variável categórica → moda
+VDE014,categorica,21.39,MAR,MODA (4.0),Variável categórica → moda

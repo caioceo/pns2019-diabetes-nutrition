@@ -1,0 +1,15 @@
+coluna,n_zscore,pct_zscore,n_iqr,pct_iqr,n_consenso,pct_consenso,lim_inf_iqr,lim_sup_iqr,estrategia,justificativa
+C008,0,0.0,0,0.0,0,0.0,14.0,70.0,MANTER,Sem outliers confirmados (consenso Z+IQR)
+V0001,0,0.0,0,0.0,0,0.0,-9.0,71.0,MANTER,Sem outliers confirmados (consenso Z+IQR)
+P03702,356,1.76,3522,17.39,356,1.76,0.0,0.0,WINSORIZAR,"356 outliers confirmados (1.76%) → winsorização nos limites IQR [0.00, 0.00]"
+P036,305,1.51,2737,13.52,305,1.51,-4.5,7.5,WINSORIZAR,"305 outliers confirmados (1.51%) → winsorização nos limites IQR [-4.50, 7.50]"
+Q031,482,2.36,500,2.44,482,2.36,0.0,0.0,WINSORIZAR,"482 outliers confirmados (2.36%) → winsorização nos limites IQR [0.00, 0.00]"
+P00103,152,0.74,249,1.21,152,0.74,34.5,110.5,FLAG,Outlier clínico real → flag criada (não winsorizado)
+P00104,160,0.79,263,1.29,160,0.79,34.5,110.5,FLAG,Outlier clínico real → flag criada (não winsorizado)
+P00403,62,0.3,114,0.56,62,0.3,140.5,192.5,FLAG,Outlier clínico real → flag criada (não winsorizado)
+P00404,50,0.25,121,0.6,50,0.25,140.5,192.5,FLAG,Outlier clínico real → flag criada (não winsorizado)
+P029,351,1.71,1461,7.12,351,1.71,-3.3741,8.4245,WINSORIZAR,"351 outliers confirmados (1.71%) → winsorização nos limites IQR [-3.37, 8.42]"
+VDF003,341,1.66,1810,8.83,341,1.66,-1330.0,3518.0,FLAG,Outlier clínico real → flag criada (não winsorizado)
+J012,609,2.97,951,4.64,609,2.97,-2.0,6.0,FLAG,Outlier clínico real → flag criada (não winsorizado)
+VDE014,0,0.0,0,0.0,0,0.0,-6.0,18.0,MANTER,Sem outliers confirmados (consenso Z+IQR)
+E017,239,1.17,1842,8.98,239,1.17,18.0,59.6,FLAG,Outlier clínico real → flag criada (não winsorizado)
