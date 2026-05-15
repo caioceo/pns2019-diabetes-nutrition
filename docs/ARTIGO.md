@@ -27,20 +27,22 @@ A base de dados adotada deriva da Pesquisa Nacional de Saúde de 2019 (PNS/IBGE)
 **Etapa 1: Seleção do Escopo do Problema.** O estudo delimitou o público-alvo a adultos com idade entre 30 e 60 anos, reduzindo a base para 117.159 registros. Em seguida, estabeleceram-se duas classes estritas:
 *   **Diabéticos (Target):** Indivíduos que reportaram exclusivamente o diagnóstico de diabetes (Q03001 = Sim), sem relatar outras enfermidades associadas no questionário, isolando o foco de análise. (n = 555).
 *   **Saudáveis:** Indivíduos que reportaram não possuir nenhum diagnóstico de doença crônica listado. (n = 19.954).
-Resultou-se em uma base de 20.509 registros avaliados.
+Resultou-se em uma base final de 20.509 registros avaliados.
+
+**Análise Descritiva da Base Final:** A coorte isolada para o estudo apresentou uma distribuição equilibrada entre gêneros, sendo composta por 52,63% de homens e 47,37% de mulheres. Em relação ao estágio metabólico etário, a maioria concentra-se como Adultos Jovens (30-39 anos) com 45,16%, seguidos por Adultos (40-49 anos) com 31,66% e indivíduos na Meia-Idade (50-60 anos) representando 23,17%. A distribuição regional da amostra reflete a densidade do inquérito nacional, com forte representação do Nordeste (33,32%), Sudeste (21,10%) e Norte (20,55%). No que tange ao perfil biomédico – o cerne biológico deste estudo –, detectou-se um cenário de alto risco metabólico latente: **mais de 59% da amostra encontra-se fora do peso ideal**, sendo 41,80% em situação de Sobrepeso e 17,50% clinicamente Obesos. Esse perfil nutricional agudo reforça empiricamente a viabilidade de se extrair padrões determinísticos para a incidência do diabetes na população adulta.
 
 ### 3.2. Métodos (Pipeline de Preparação)
 
-**Etapas 2 e 3: Entendimento do Domínio e Seleção Conceitual.** A partir de mapas conceituais fundamentados pela American Diabetes Association (2004), o escopo original de 1.087 colunas foi reduzido para 105 atributos, organizados nas seguintes dimensões (Tabela 1):
+**Etapas 2 e 3: Entendimento do Domínio e Seleção de Atributos.** A partir de mapas conceituais fundamentados pela American Diabetes Association (2004), o escopo original de 1.087 colunas foi reduzido, tratado e submetido a uma rigorosa Engenharia de Variáveis (Etapa 6 do KDD) para formar o **conjunto de dados final do modelo**, organizado nas seguintes dimensões estruturais (Tabela 1):
 
-*Tabela 1: Resumo das Dimensões Selecionadas*
-| Dimensão | Exemplos de Atributos | Natureza |
+*Tabela 1: Resumo das Dimensões e Atributos Finais do Modelo (Pós-Preparação)*
+| Dimensão | Exemplos de Atributos (Pós-Fusão e Discretização) | Natureza |
 | :--- | :--- | :--- |
-| Hábitos Alimentares | P006 a P011 (Consumo de ultraprocessados, feijão, carnes, hortaliças) | Categórica / Ordinal |
-| Ingestão de Álcool/Bebidas | P027 a P029 (Frequência e Doses de Álcool), P020 (Refrigerante) | Ordinal / Contínua |
-| Perfil Antropométrico | P00103 (Peso), P00403 (Altura) | Contínua |
-| Atividade Física | P034 a P03702 (Prática e minutos de exercício) | Ordinal / Contínua |
-| Fatores Sociodemográficos | C006 (Sexo), VDF003 (Renda), E017 (Horas trabalhadas) | Ordinal / Nominal |
+| **Hábitos Alimentares (Protetores)** | Consumo semanal in natura (P006 a P018: feijão, hortaliças, peixe) | Contínua (Dias/Semana) |
+| **Hábitos Alimentares (Risco)** | Score_Ultraprocessados_Ontem (Fusão da carga glicêmica diária) | Contínua (0 a 10) |
+| **Perfil Antropométrico** | IMC_Categoria (Adequado, Sobrepeso, Obeso, Baixo Peso) | Categórica Ordinal |
+| **Nível de Atividade Física** | Nivel_Atividade_Fisica (Ativo, Insuf. Ativo, Sedentário) | Categórica Ordinal |
+| **Fatores Biológicos e Sociais** | C008_Categoria (Faixa Etária), Score_Saude_Mental (Nível de estresse/cortisol), VDF003 (Renda) | Ordinal / Contínua |
 
 **Etapa 4: Tratamento de Dados Ausentes e Vazios Estruturais.** O processo de mitigação de dados faltantes uniu heurísticas estatísticas com regras biológicas:
 1.  **Vazios Estruturais:** Saltos no questionário (ex: tempo de exercício para sedentários absolutos, doses de álcool para abstêmios, idade do diagnóstico para não diabéticos) foram tratados não como perdas (missing), mas preenchidos estruturalmente com o valor zero. Isto evitou a contaminação da base com imputações estatísticas inválidas, resgatando atributos vitais como a idade no diagnóstico (redução de 97,6% para 0,26% de ausência).
