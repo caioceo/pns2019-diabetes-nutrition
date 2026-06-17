@@ -406,12 +406,12 @@ def tratar_continua(df, col, pct, skewness, media, mediana, dp):
     if pct < THRESH_KNN:  # <5%
         if abs(skewness) < THRESH_SKEW_NORMAL:
             valor = media if media is not None else df[col].mean()
-            df[col].fillna(valor, inplace=True)
+            df[col] = df[col].fillna(valor)
             estrategia = f"MEDIA ({valor:.4f})"
             just = f"|skewness|={abs(skewness):.2f} < {THRESH_SKEW_NORMAL} → dist. normal → média"
         else:
             valor = mediana if mediana is not None else df[col].median()
-            df[col].fillna(valor, inplace=True)
+            df[col] = df[col].fillna(valor)
             estrategia = f"MEDIANA ({valor:.4f})"
             just = f"|skewness|={abs(skewness):.2f} ≥ {THRESH_SKEW_NORMAL} → dist. assimétrica → mediana"
 
@@ -444,7 +444,7 @@ def tratar_continua(df, col, pct, skewness, media, mediana, dp):
             just = f"{pct*100:.1f}% ausentes > 30% → regressão com {X_cols}"
         else:
             valor = df[col].median()
-            df[col].fillna(valor, inplace=True)
+            df[col] = df[col].fillna(valor)
             estrategia = f"MEDIANA_FALLBACK ({valor:.4f})"
             just = "Regressão inviável (poucos preditores ou registros) → mediana"
 
@@ -461,7 +461,7 @@ def tratar_discreta(df, col, pct, skewness, media, mediana, dp):
     """Discreta → mediana arredondada para inteiro mais próximo (Zárate Slide 13)."""
     mecanismo = identificar_mecanismo(df, col, TARGET_COL)
     valor = int(round(mediana)) if mediana is not None else int(round(df[col].median()))
-    df[col].fillna(valor, inplace=True)
+    df[col] = df[col].fillna(valor)
     entrada = {
         "coluna": col, "tipo": "discreta", "pct_ausentes": round(pct * 100, 2),
         "mecanismo": mecanismo, "estrategia": f"MEDIANA_INT ({valor})",
@@ -478,7 +478,7 @@ def tratar_binaria(df, col, pct):
     mecanismo = identificar_mecanismo(df, col, TARGET_COL)
     moda = df[col].mode()
     valor = moda.iloc[0] if not moda.empty else 0
-    df[col].fillna(valor, inplace=True)
+    df[col] = df[col].fillna(valor)
     entrada = {
         "coluna": col, "tipo": "binaria", "pct_ausentes": round(pct * 100, 2),
         "mecanismo": mecanismo, "estrategia": f"MODA ({valor})",
@@ -494,7 +494,7 @@ def tratar_categorica(df, col, pct):
     mecanismo = identificar_mecanismo(df, col, TARGET_COL)
     moda = df[col].mode()
     valor = moda.iloc[0] if not moda.empty else "desconhecido"
-    df[col].fillna(valor, inplace=True)
+    df[col] = df[col].fillna(valor)
     entrada = {
         "coluna": col, "tipo": "categorica", "pct_ausentes": round(pct * 100, 2),
         "mecanismo": mecanismo, "estrategia": f"MODA ({valor})",

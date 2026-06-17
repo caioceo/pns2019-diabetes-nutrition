@@ -1,0 +1,176 @@
+================================================================================
+  RELATÓRIO DE TRATAMENTO DE OUTLIERS — SCRIPT 08 | PNS 2019
+================================================================================
+
+RESUMO GERAL
+────────────────────────────────────────
+  Base de entrada:   06_pns2019_prepared.csv (20,509 linhas)
+  Base de saída:     08_pns2019_outliers_treated.csv (20,509 linhas × 74 colunas)
+  Linhas removidas:  0 (política de preservação)
+  Variáveis analisadas: 10
+  Winsorizadas: 2 | Flagadas: 3 | Mantidas: 5
+
+VARIÁVEIS RESTAURADAS (correção de bugs do script 04)
+────────────────────────────────────────────────────────────
+  Q031 — Idade diagnóstico: restaurada de 02_original.csv + lógica clínica (IQR=[0,0] havia zerado todos os valores)
+  P036 — Tipo de exercício: restaurada de 02_original.csv (é categórica ordinal, não contínua)
+  P029 — Doses de álcool: valores negativos corrigidos para 0 (IQR inferior era -3.37)
+
+TÉCNICAS UTILIZADAS
+────────────────────────────────────────────────────────────
+  Z-Score    |z| > 3.0        — para distribuições ~normais (|skew| < 0.5)
+  IQR        Q1-1.5×IQR..Q3+1.5×IQR — para distribuições moderadas (IQR > 0)
+  MAD        |x-med|/MAD > 3.5  — robusto para distribuições assimétricas (|skew| > 1)
+  Percentil  [P1, P99]          — conservador para caudas pesadas (kurtosis > 5)
+  Domínio    limites fixos      — baseado em conhecimento clínico/biológico
+
+DECISÕES POR VARIÁVEL
+────────────────────────────────────────────────────────────────────────────────
+Variável                            Método       Ação           N_out  %_out    Lim_inf    Lim_sup
+────────────────────────────────────────────────────────────────────────────────
+V0001                               nenhum       manter             0  0.00%        N/A        N/A
+Q031                                dominio      flag               0  0.00%       0.00      60.00
+P029                                mad          winsorizar      1461  7.12%       0.00       8.28
+VDF003                              mad          flag            1657  8.08%   -1941.95    3817.95
+J012                                percentil    flag             134  0.65%       1.00      12.00
+E017                                percentil    flag             359  1.75%       7.00      70.00
+Calculo_IMC                         dominio      winsorizar         0  0.00%      12.00      70.00
+Score_Ultraprocessados_Ontem        nenhum       manter             0  0.00%        N/A        N/A
+Score_Saude_Mental                  nenhum       manter             0  0.00%        N/A        N/A
+Minutos_Semanais_Exercicio          mad          winsorizar      1655  8.07%       0.00     300.00
+
+
+JUSTIFICATIVAS DETALHADAS
+────────────────────────────────────────────────────────────────────────────────
+
+  V0001:
+    Método: NENHUM
+    Ação:   MANTER
+    Outliers: 0 (0.00%)
+    Justificativa: Código de Unidade da Federação (11-53) — variável nominal codificada, não analisar
+
+  Q031:
+    Método: DOMINIO
+    Ação:   FLAG
+    Outliers: 0 (0.00%)
+    Limites: [0.0000, 60.0000]
+    Justificativa: Idade diagnóstico diabetes: range biológico [0, 60] anos; outliers são erro de digitação
+
+  P029:
+    Método: MAD
+    Ação:   WINSORIZAR
+    Outliers: 1461 (7.12%)
+    Limites: [0.0000, 8.2775]
+    Justificativa: Doses de álcool: skew~2.95 no original; MAD robusto; winsorizar extremos; mín=0
+
+  VDF003:
+    Método: MAD
+    Ação:   FLAG
+    Outliers: 1657 (8.08%)
+    Limites: [-1941.9505, 3817.9505]
+    Justificativa: Renda per capita com skew=8.77 — outliers extremos são reais (alta renda)
+
+  J012:
+    Método: PERCENTIL
+    Ação:   FLAG
+    Outliers: 134 (0.65%)
+    Limites: [1.0000, 12.0000]
+    Justificativa: Consultas médicas: kurtosis~208 com cauda pesada; percentil [P1,P99] conservador
+
+  E017:
+    Método: PERCENTIL
+    Ação:   FLAG
+    Outliers: 359 (1.75%)
+    Limites: [7.0000, 70.0000]
+    Justificativa: Horas de trabalho: valores extremos reais (plantões, dupla jornada)
+
+  Calculo_IMC:
+    Método: DOMINIO
+    Ação:   WINSORIZAR
+    Outliers: 0 (0.00%)
+    Limites: [12.0000, 70.0000]
+    Justificativa: IMC: limites biológicos plausíveis [12, 70] (OMS + extremos clínicos)
+
+  Score_Ultraprocessados_Ontem:
+    Método: NENHUM
+    Ação:   MANTER
+    Outliers: 0 (0.00%)
+    Justificativa: Score discreto limitado [0, 10] — sem outliers possíveis por construção
+
+  Score_Saude_Mental:
+    Método: NENHUM
+    Ação:   MANTER
+    Outliers: 0 (0.00%)
+    Justificativa: Score PHQ-9 discreto limitado [0, 24] — sem outliers possíveis por construção
+
+  Minutos_Semanais_Exercicio:
+    Método: MAD
+    Ação:   WINSORIZAR
+    Outliers: 1655 (8.07%)
+    Limites: [0.0000, 300.0000]
+    Justificativa: Distribuição altamente assimétrica (skew~4.1); MAD robusto; mín=0 (tempo)
+
+
+VARIÁVEIS CATEGÓRICAS EXCLUÍDAS DA ANÁLISE
+────────────────────────────────────────────────────────────
+  C006 (nunique=2)
+  C009 (nunique=6)
+  C011 (nunique=4)
+  E017_outlier_flag (nunique=2)
+  I00102 (nunique=2)
+  J012_outlier_flag (nunique=2)
+  M005010 (nunique=2)
+  P00103_outlier_flag (nunique=2)
+  P00104_outlier_flag (nunique=2)
+  P00403_outlier_flag (nunique=2)
+  P00404_outlier_flag (nunique=2)
+  P006 (nunique=8)
+  P00601 (nunique=2)
+  P00602 (nunique=2)
+  P00603 (nunique=2)
+  P00604 (nunique=2)
+  P00605 (nunique=2)
+  P00607 (nunique=2)
+  P00608 (nunique=2)
+  P00609 (nunique=2)
+  P00610 (nunique=2)
+  P00611 (nunique=2)
+  P00612 (nunique=2)
+  P00613 (nunique=2)
+  P00901 (nunique=8)
+  P01001 (nunique=4)
+  P01101 (nunique=8)
+  P013 (nunique=8)
+  P015 (nunique=8)
+  P01601 (nunique=8)
+  P018 (nunique=8)
+  P019 (nunique=4)
+  P02001 (nunique=8)
+  P02002 (nunique=8)
+  P02101 (nunique=3)
+  P02102 (nunique=3)
+  P023 (nunique=8)
+  P02401 (nunique=3)
+  P02501 (nunique=8)
+  P02601 (nunique=5)
+  P02602 (nunique=8)
+  P027 (nunique=3)
+  P02801 (nunique=8)
+  P03201 (nunique=2)
+  P036 (nunique=18)
+  P038 (nunique=2)
+  P039 (nunique=2)
+  P040 (nunique=3)
+  P04501 (nunique=6)
+  P04502 (nunique=6)
+  P050 (nunique=3)
+  Q00101 (nunique=5)
+  Q02901 (nunique=5)
+  Q03001 (nunique=2)
+  V0026 (nunique=2)
+  V0031 (nunique=4)
+  VDD004A (nunique=7)
+  VDE014 (nunique=12)
+  VDF003_outlier_flag (nunique=2)
+  VDF004 (nunique=7)
+  VDM001 (nunique=4)

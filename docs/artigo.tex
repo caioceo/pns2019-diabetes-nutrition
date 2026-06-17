@@ -1,0 +1,442 @@
+    \documentclass[12pt, a4paper]{article}
+    \usepackage[utf8]{inputenc}
+    \usepackage[portuguese]{babel}
+    \usepackage{graphicx}
+    \usepackage{booktabs}
+    \usepackage{longtable}
+    \usepackage{hyperref}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning}
+
+
+    % --- PACOTES PADRÃO ABNT ---
+    \usepackage[left=3cm,top=3cm,right=2cm,bottom=2cm]{geometry} % Margens ABNT
+    \usepackage{mathptmx} % Fonte Times New Roman
+    \usepackage{setspace} % Espaçamento
+    \onehalfspacing % Espaçamento 1.5 entre linhas
+    \setlength{\parindent}{1.25cm} % Recuo do parágrafo
+    \usepackage[alf]{abntex2cite} % Citações no formato ABNT (AUTOR, Ano)
+    % ---------------------------
+
+    \begin{document}
+
+    % --- CAPA ABNT ---
+    \begin{titlepage}
+        \centering
+        \textbf{PONTIFÍCIA UNIVERSIDADE CATÓLICA DE MINAS GERAIS} \\
+        \textbf{CIÊNCIA DE DADOS \& INTELIGÊNCIA ARTIFICIAL}
+        
+        \vspace{4cm}
+        
+        \textbf{CAIO CÉSAR DE OLIVEIRA}
+        
+        \vspace{4cm}
+        
+        \textbf{MINERAÇÃO DE DADOS APLICADA À RELAÇÃO ENTRE HÁBITOS NUTRICIONAIS E DIABETES MELLITUS EM ADULTOS BRASILEIROS:} \\
+        Uma Abordagem sobre a PNS 2019
+        
+        \vfill
+        
+        \textbf{Belo Horizonte} \\
+        \textbf{2026}
+    \end{titlepage}
+
+    % --- FOLHA DE ROSTO ABNT ---
+    \begin{titlepage}
+        \centering
+        \textbf{CAIO CÉSAR DE OLIVEIRA}
+        
+        \vspace{4cm}
+        
+        \textbf{MINERAÇÃO DE DADOS APLICADA À RELAÇÃO ENTRE HÁBITOS NUTRICIONAIS E DIABETES MELLITUS EM ADULTOS BRASILEIROS:} \\
+        Uma Abordagem sobre a PNS 2019
+        
+        \vspace{3cm}
+        
+        \begin{flushright}
+        \begin{minipage}{0.55\textwidth}
+            \linespread{1.0}\selectfont
+            Trabalho acadêmico apresentado à disciplina de Mineração de Dados como Processo, do curso de Ciência de Dados \& Inteligência Artificial da Pontifícia Universidade Católica de Minas Gerais, como requisito parcial para avaliação.
+            
+            \vspace{0.8cm}
+            Orientador: Prof. Dr. Luis Enrique Zárate Gálvez
+        \end{minipage}
+        \end{flushright}
+        
+        \vfill
+        
+        \textbf{Belo Horizonte} \\
+        \textbf{2026}
+    \end{titlepage}
+
+    \begin{abstract}
+    O Diabetes Mellitus figura como um dos desafios mais críticos de saúde pública e de economia no século XXI. O presente trabalho tem como objetivo investigar e modelar a relação preditiva entre hábitos nutricionais, níveis de sedentarismo, antropometria e a ocorrência do diabetes em adultos brasileiros (30 a 60 anos). Utilizando o escopo da Pesquisa Nacional de Saúde (PNS) de 2019 do IBGE, aplicou-se a metodologia de Descoberta de Conhecimento em Bases de Dados (KDD). O \textit{pipeline} de processamento destacou-se pela incorporação de regras de domínio no tratamento de vazios estruturais e pela isenção de winsorização, optando-se pela preservação de \textit{outliers} clínicos genuínos através da geração de \textit{flags} isoladas. Adicionalmente, realizou-se uma robusta Engenharia de Variáveis para condensar dados esparsos em escores clínicos de carga glicêmica, saúde mental e Índice de Massa Corporal (IMC). A base resultante, composta por 20.509 registros avaliados, revelou um perfil latente de risco, onde mais de 59\% dos sujeitos encontram-se fora da faixa de eutrofia. O estudo atesta a aderência de técnicas de Mineração de Dados na extração de padrões determinísticos complexos em grandes inquéritos de saúde populacional.
+
+    \end{abstract}
+
+    \newpage
+
+    \tableofcontents
+
+    \newpage
+
+    \section{Introdução}
+    O Diabetes Mellitus (DM) figura como um dos problemas de saúde pública mais críticos do século XXI. De acordo com a 11ª edição do Atlas do Diabetes (2024) da \textit{International Diabetes Federation} (IDF), a doença afeta aproximadamente 16,6 milhões de adultos no Brasil (uma prevalência de 10,6\% na população de 20 a 79 anos). O impacto econômico dessa epidemia é assustador: o Brasil desponta como o terceiro país com os maiores gastos relacionados ao diabetes no mundo, com custos estimados em cerca de US\$ 45,1 bilhões anuais. No âmbito do Sistema Único de Saúde (SUS), o diabetes e suas complicações crônicas (como doenças cardiovasculares, amputações e nefropatias) respondem por expressiva fatia orçamentária, custando aos cofres públicos e à economia nacional mais de R\$ 42 bilhões por ano em gastos diretos e indiretos \cite{idf2024}. Neste cenário, intervenções na Terapia Nutricional Médica são apontadas como fatores primários tanto para a prevenção quanto para o manejo clínico adequado da doença \cite{ada2004}.
+
+    O presente trabalho tem como objetivo investigar a relação entre padrões de consumo alimentar, antropometria e a ocorrência do diabetes em adultos brasileiros, utilizando técnicas de Mineração de Dados e Machine Learning. A fonte de dados selecionada é a Pesquisa Nacional de Saúde (PNS) de 2019, um dos inquéritos epidemiológicos mais abrangentes do país \cite{ibge2020}.
+
+    O restante deste artigo está estruturado da seguinte forma: a Seção 2 apresenta os trabalhos relacionados e o diferencial desta pesquisa; a Seção 3 detalha a metodologia científica, os materiais e o pipeline de pré-processamento; e, nas seções subsequentes, serão apresentados os experimentos, a aplicação dos modelos preditivos e as conclusões extraídas.
+
+    \newpage
+
+    \section{Trabalhos Relacionados}
+    A utilização de abordagens analíticas no contexto do diabetes tem sido explorada por diversos autores. Na esfera médica global, a revisão sistemática de Kavakiotis et al. \cite{kavakiotis2017} demonstrou que algoritmos como Support Vector Machines (SVM) e Random Forest alcançam acurácias superiores a 80\% na predição de complicações diabéticas quando aplicados a registros clínicos eletrônicos, validando a eficácia do Machine Learning na diabetologia moderna.
+
+    No contexto nacional, estudos baseados na PNS 2019 têm explorado vertentes específicas da saúde pública. Malta et al. \cite{malta2021} analisaram a validade do diabetes autorreferido, enquanto Souza et al. \cite{souza2021} e Claro et al. \cite{claro2021} focaram nas desigualdades sociodemográficas e no consumo de alimentos ultraprocessados, respectivamente. Adicionalmente, Nunes et al. \cite{nunes2021} avaliaram a ocorrência de multimorbidades, e Garcia et al. \cite{garcia2021} traçaram o perfil de sedentarismo e atividade física.
+
+    \textbf{Diferencial da Proposta:} Enquanto os estudos nacionais da PNS supracitados utilizam majoritariamente inferência estatística tradicional e análises descritivas isoladas, o presente trabalho se diferencia ao aplicar um pipeline de Descoberta de Conhecimento em Bases de Dados (KDD) focado exclusivamente na modelagem preditiva da interação Dieta-Diabetes. Além disso, propõe-se um tratamento algorítmico rigoroso de dados clínicos, incorporando regras de negócio em saúde para evitar viéses de imputação estatística e proteger valores extremos inerentes ao espectro biológico (como obesidade e inatividade física).
+
+    \newpage
+
+    \section{Materiais e Métodos}
+
+    A metodologia adotada segue as etapas da Descoberta de Conhecimento em Bases de Dados (KDD), contemplando o entendimento do domínio, seleção, limpeza, transformação e modelagem.
+
+
+        \subsection{Base de Dados PNS 2019}
+        Utilizamos para o desenvolvimento deste estudo, seguindo o pipeline de descoberta de conhecimento, a base de dados transversal disponibilizada pelo IBGE em parceria com o Ministério da Saúde, a Pesquisa Nacional de Saúde de 2019 (PNS 2019), uma vez que fornece informações relacionadas à saúde pública, comorbidades e diagnóstico de doenças crônicas. A base original é composta por 293.726 instâncias e 1.087 atributos.
+        
+        Optou-se por delimitar o público-alvo em adultos com idade entre 30 e 60 anos, realizando um recorte inicial da base, o que resultou em 117.159 registros. Em seguida, com o objetivo de viabilizar a construção de modelos de aprendizado de máquina supervisionados, foram definidas duas classes estritas: indivíduos diabéticos e indivíduos saudáveis.
+        
+        A classe diabéticos (target) foi composta por indivíduos que reportaram exclusivamente o diagnóstico de diabetes (Q03001 = Sim), sem a presença de outras doenças crônicas associadas no questionário, de forma a isolar o efeito da condição de interesse, totalizando 555 registros. Já a classe saudáveis foi definida por indivíduos que não relataram diagnóstico de nenhuma doença crônica, totalizando 19.954 registros.
+        
+        Ao final do processo de filtragem, obteve-se uma base consolidada com 20.509 registros, utilizada nas etapas subsequentes de modelagem.
+
+    \subsubsection{Análise Descritiva Inicial}
+        A coorte isolada para o estudo apresentou uma distribuição equilibrada entre gêneros, sendo composta por 52,63\% de homens e 47,37\% de mulheres. Em relação ao estágio metabólico etário, a maioria concentra-se como Adultos Jovens (30-39 anos) com 45,16\%, seguidos por Adultos (40-49 anos) com 31,66\% e indivíduos na Meia-Idade (50-60 anos) representando 23,17\%. A distribuição regional da amostra reflete a densidade do inquérito nacional, com forte representação do Nordeste (33,32\%), Sudeste (21,10\%) e Norte (20,55\%). No que tange ao perfil biomédico – o cerne biológico deste estudo –, detectou-se um cenário de alto risco metabólico latente: \textbf{mais de 59\% da amostra encontra-se fora do peso ideal}, sendo 41,80\% em situação de Sobrepeso e 17,50\% clinicamente Obesos. Esse perfil nutricional agudo reforça empiricamente a viabilidade de se extrair padrões determinísticos para a incidência do diabetes na população adulta.
+
+     \newpage
+        
+    \section {Pre-Processamento}
+
+    \subsection{Seleção Preliminar de Atributos}
+
+
+    A seleção de atributos provenientes da Pesquisa Nacional de Saúde (PNS 2019) foi estruturada através de uma abordagem multidimensional, fundamentada no método CAPTO (ZÁRATE et al., 2023). Para garantir que o modelo de mineração de dados capta a natureza multifatorial da diabetes, as variáveis foram organizadas em quatro domínios apoiados pela literatura:
+
+    \begin{itemize}
+        \item \textbf{Dimensão Sociodemográfica:} Integra variáveis como idade, sexo, escolaridade e rendimento, essenciais para mapear as fortes desigualdades no acesso à saúde e no consumo alimentar associadas às doenças crónicas no Brasil.
+    
+        \item \textbf{Dimensão de Hábitos Alimentares (Núcleo):} Contrapõe o consumo de alimentos protetores à ingestão de ultraprocessados, justificando-se pelo forte impacto da matriz alimentar no controle glicémico e metabólico.
+    
+        \item \textbf{Dimensão de Estilo de Vida e Antropometria:} Incorpora indicadores de sedentarismo, esforço físico e medidas corporais (peso e altura).
+    
+        \item \textbf{Dimensão de Saúde Clínica e Mental:} Aborda o paciente de forma integral, monitorando a multimorbilidade (como a hipertensão arterial) e o impacto de sintomas depressivos e distúrbios do sono na gestão da doença.
+    \end{itemize}
+
+    
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    node distance=1.5cm and 2cm,
+    block/.style={rectangle, draw, fill=blue!5, text width=4cm, text centered, rounded corners, minimum height=1.2cm},
+    main/.style={rectangle, draw, fill=green!10, text width=4.5cm, text centered, rounded corners, minimum height=1.5cm, font=\bfseries},
+    line/.style={draw, -Latex, thick}
+]
+
+% Nodes
+\node [main] (diabetes) {Modelo: Ocorrência de Diabetes};
+\node [block, above left=of diabetes] (protetores) {Hábitos Protetores\\};
+\node [block, below left=of diabetes] (risco) {Hábitos de Risco\\};
+\node [block, above right=of diabetes] (antropo) {Perfil Antropométrico\\};
+\node [block, right=of diabetes] (fisica) {Atividade Física\\};
+\node [block, below right=of diabetes] (biologico) {Fatores Biológicos\\};
+
+% Edges
+\path [line] (protetores) -- (diabetes);
+\path [line] (risco) -- (diabetes);
+\path [line] (antropo) -- (diabetes);
+\path [line] (fisica) -- (diabetes);
+\path [line] (biologico) -- (diabetes);
+
+\end{tikzpicture}
+\vspace{0.5cm}
+\caption{Diagrama Conceitual das Dimensões do Estudo}
+
+\label{fig:dimensoes}
+\vspace{0.5cm}
+\end{figure}
+
+\begin{table}[h]
+    \centering
+    \caption{Resumo das Dimensões e Atributos Iniciais do Estudo}
+    \label{tab:atributos}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{ll}
+    \toprule
+    \textbf{Dimensão} & \textbf{Exemplos de Atributos Originais} \\ \midrule
+    \textbf{Hábitos Alimentares (Protetores)} & Consumo in natura \\
+    \textbf{Hábitos Alimentares (Risco)} & Consumo de ultraprocessados \\
+    \textbf{Perfil Antropométrico} & Peso e Altura brutos \\
+    \textbf{Atividade Física} & Prática de esportes, tempo de exercício, deslocamento \\
+    \textbf{Fatores Biológicos/Sociais} & Idade, Sexo, Renda, Sintomas de Saúde Mental \\ \bottomrule
+    \end{tabular}%
+    }
+    \end{table}
+
+
+    \vspace{0.5cm}
+        
+    \subsection{Métricas Estátisticas de Atributos Preliminares}
+    
+    A Tabela 2 apresenta o dicionário de atributos e as métricas originais de preenchimento do conjunto de dados analisado. Este dicionário tem como objetivo fornecer uma visão estruturada das variáveis utilizadas no estudo, detalhando não apenas a sua definição e significado no contexto da Pesquisa Nacional de Saúde (PNS 2019), mas também aspectos quantitativos relacionados à sua qualidade de dados.
+    
+    Além da descrição dos atributos, são apresentadas métricas estatísticas de completude, que permitem avaliar o nível de preenchimento de cada variável, incluindo a proporção de valores ausentes e a distribuição geral dos dados. Essas informações são fundamentais para compreender a robustez do conjunto de dados, identificar possíveis vieses introduzidos por lacunas de informação e orientar etapas de pré-processamento, como imputação ou exclusão de variáveis.
+    
+    Dessa forma, o dicionário de dados não apenas documenta a estrutura do dataset, mas também contribui diretamente para a transparência e reprodutibilidade da análise, ao explicitar as características estatísticas que influenciam a qualidade dos modelos de mineração de dados aplicados.
+    
+    \vspace{0.5cm}
+    
+\begin{longtable}{p{2.5cm} p{7.5cm} p{2.5cm} p{2.5cm}}
+\caption{Dicionário de Atributos e Métricas Originais de Preenchimento} \label{tab:metricas} \\
+\toprule
+\textbf{Atributo} & \textbf{Descrição} & \textbf{Natureza} & \textbf{\% Ausentes} \\ \midrule
+\endfirsthead
+\multicolumn{4}{c}%
+{\tablename\ \thetable\ -- \textit{Continuação da página anterior}} \\
+\toprule
+\textbf{Atributo} & \textbf{Descrição} & \textbf{Natureza} & \textbf{\% Ausentes} \\ \midrule
+\endhead
+\midrule \multicolumn{4}{r}{\textit{Continua na próxima página}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+P006 & Em quantos dias da semana o(a) Sr(a) costuma comer feijão? & Discreto & 0.00\% \\
+P00901 & Em quantos dias da semana, o(a) Sr(a) costuma comer pelo menos um tipo de verdura ... & Discreto & 0.00\% \\
+P01001 & Em geral, o(a) Sr(a) costuma comer esse tipo de verdura ou legume: & Categórico & 46.60\% \\
+P01101 & Em quantos dias da semana o(a) Sr(a) costuma comer carne vermelha (boi, porco, cab... & Discreto & 0.00\% \\
+P013 & Em quantos dias da semana o(a) Sr(a) costuma comer frango/galinha? & Discreto & 0.00\% \\
+P015 & Em quantos dias da semana o(a) Sr(a) costuma comer peixe? & Discreto & 0.00\% \\
+P018 & Em quantos dias da semana o(a) Sr(a) costuma comer frutas? & Discreto & 0.00\% \\
+P019 & Em geral, quantas vezes por dia o(a) Sr(a) come frutas? & Categórico & 57.40\% \\
+P01601 & Em quantos dias da semana o(a) Sr(a) costuma tomar suco de fruta natural (incluída... & Discreto & 0.00\% \\
+P00601 & Ontem o(a) Sr(a) comeu arroz, macarrão, polenta, cuscuz ou milho verde. & Categórico & 0.00\% \\
+P00602 & Batata comum, mandioca/aipim/macaxeira, cará ou inhame. & Categórico & 0.00\% \\
+P00603 & Feijão, ervilha, lentilha ou grão de bico. & Categórico & 0.00\% \\
+P00604 & Carne de boi, porco, frango, peixe & Categórico & 0.00\% \\
+P00605 & Ovo (frito, cozido ou mexido ). & Categórico & 0.00\% \\
+P00607 & Alface, couve, brócolis, agrião ou espinfre. & Categórico & 0.00\% \\
+P00608 & Abóbora, cenoura, batata doce ou quiabo/caruru. & Categórico & 0.00\% \\
+P00609 & Tomate, pepino, abobrinha, berinjela, chuchu ou beterraba. & Categórico & 0.00\% \\
+P00610 & Mamão, manga, melão amarelo ou pequi. & Categórico & 0.00\% \\
+P00611 & Laranja, banana, maçã, abacaxi. & Categórico & 0.00\% \\
+P00612 & Leite & Categórico & 0.00\% \\
+P00613 & Amendoim, castanha de caju ou castanha do Brasil/Pará & Categórico & 0.00\% \\
+P02002 & Em quantos dias da semana o(a) Sr(a) costuma tomar refrigerante? & Discreto & 0.00\% \\
+P02102 & Que tipo de refrigerante o(a) Sr(a) costuma tomar? & Categórico & 50.16\% \\
+P02501 & Em quantos dias da semana o(a) Sr(a) costuma comer alimentos doces como biscoito/b... & Discreto & 0.00\% \\
+P00617 & Salgadinho de pacote ou biscoito/bolacha salgado. & Categórico & 0.00\% \\
+P00618 & Biscoito/bolacha doce ou recheado ou bolo de pacote. & Categórico & 0.00\% \\
+P00619 & Sorvete, chocolate, gelatina, flan ou outra sobremesa industrializada. & Categórico & 0.00\% \\
+P00620 & Salsicha, linguiça, mortadela ou presunto. & Categórico & 0.00\% \\
+P00621 & Pão de forma, de cachorro-quente ou de hambúrguer. & Categórico & 0.00\% \\
+P00622 & Margarina, maionese, ketchup ou outros molhos industrializados. & Categórico & 0.00\% \\
+P00623 & Macarrão instantâneo, sopa de pacote, lasanha congelada ou outro prato congelado c... & Categórico & 0.00\% \\
+P00614 & ONTEM o(a) Sr(a) tomou ou comeu:Refrigerante & Categórico & 0.00\% \\
+P00615 & Suco de fruta em caixinha ou lata ou refresco em pó. & Categórico & 0.00\% \\
+P00616 & Bebida achocolatada ou iogurte com sabor. & Categórico & 0.00\% \\
+P02601 & Considerando a comida preparada na hora e os alimentos industrializados, o(a) Sr(a... & Categórico & 0.00\% \\
+P02602 & Em quantos dias da semana o(a) Sr(a) costuma substituir a refeição do almoço por l... & Discreto & 0.00\% \\
+P023 & Em quantos dias da semana o(a) Sr(a) costuma tomar leite? (de origem animal: vaca,... & Discreto & 0.00\% \\
+P02401 & Que tipo de leite o(a) Sr(a) costuma tomar? & Categórico & 30.28\% \\
+P02001 & Em quantos dias da semana o(a) Sr(a) costuma tomar suco de caixinha/lata ou refres... & Discreto & 0.00\% \\
+P02101 & Que tipo de suco de caixinha/lata ou refresco em pó o(a) Sr(a) costuma tomar? (Ler... & Categórico & 65.66\% \\
+C006 & Sexo & Categórico & 0.00\% \\
+C008 & Idade do morador na data de referência & Discreto & 0.00\% \\
+C009 & Cor ou raça & Categórico & 0.00\% \\
+C011 & Qual é o estado civil de \_\_\_? & Categórico & 0.00\% \\
+V0026 & Tipo de situação censitária & Categórico & 0.00\% \\
+V0031 & Tipo de área & Categórico & 0.00\% \\
+V0001 & Unidade da Federação & Discreto & 0.00\% \\
+VDD004A & Nível de instrução mais elevado alcançado (pessoas de 5 anos ou mais de idade) pad... & Categórico & 0.00\% \\
+P034 & Nos últimos três meses, o(a) Sr(a) praticou algum tipo de exercício físico ou espo... & Categórico & 0.00\% \\
+P035 & Quantos dias por semana o(a) Sr(a) costuma (costumava)praticar exercício físico ou... & Discreto & 57.17\% \\
+P03701 & Em geral, no dia que o(a) Sr(a) pratica exercício ou esporte, quanto tempo em hora... & Discreto & 58.44\% \\
+P03702 & Em geral, no dia que o(a) Sr(a) pratica (praticava) exercício ou esporte, quanto t... & Discreto & 58.44\% \\
+P036 & Qual o exercício físico ou esporte que o(a) Sr(a) pratica (praticava) com mais fre... & Discreto & 58.44\% \\
+P038 & No seu trabalho, o(a) Sr(a) anda bastante a pé? & Categórico & 21.39\% \\
+P039 & No seu trabalho, o(a) Sr(a) faz faxina pesada, carrega peso ou faz outra atividade... & Categórico & 21.39\% \\
+P040 & Para ir ou voltar do trabalho, o(a) Sr(a) faz algum trajeto a pé ou de bicicleta? & Categórico & 21.39\% \\
+P04501 & Em média, quantas horas por dia o(a) Sr(a) costuma ficar assistindo televisão? & Categórico & 0.00\% \\
+P04502 & Em um dia, quantas horas do seu tempo livre (excluindo o trabalho), o(a) Sr(a) cos... & Categórico & 0.00\% \\
+VDM001 & Faixa de tempo gasto por dia no deslocamento casa-trabalho pelas pessoas ocupadas ... & Categórico & 31.42\% \\
+Q00101 & Quando foi a última vez que o (a) Sr(a) teve sua pressão arterial medida? & Categórico & 0.00\% \\
+Q02901 & Quando foi a última vez que o(a) Sr(a) fez exame de sangue para medir a glicemia, ... & Categórico & 0.00\% \\
+Q03001 & Algum médico já lhe deu o diagnóstico de diabetes? & Categórico & 0.00\% \\
+Q031 & Que idade o(a) Sr(a) tinha no primeiro diagnóstico do diabetes? & Discreto & 97.55\% \\
+P00103 & Peso - Informado (em kg) (3 inteiros e 1 casa decimal) & Contínuo & 6.51\% \\
+P00104 & Peso - Final (em kg) (3 inteiros e 1 casa decimal) & Discreto & 0.94\% \\
+P00403 & Altura - Informada (em cm) (3 inteiros) & Discreto & 11.80\% \\
+P00404 & Altura - Final (em cm) (3 inteiros) & Discreto & 0.94\% \\
+N010 & Nas duas últimas semanas, com que frequência o(a) Sr(a) teve problemas no sono, co... & Categórico & 0.00\% \\
+N011 & Nas duas últimas semanas, com que frequência o(a) Sr(a) teve problemas por não se ... & Categórico & 0.00\% \\
+N012 & Nas duas últimas semanas, com que frequência o(a) Sr(a) teve pouco interesse ou nã... & Categórico & 0.00\% \\
+N013 & Nas duas últimas semanas, com que frequência o(a) Sr(a) teve problemas para se con... & Categórico & 0.00\% \\
+N014 & Nas duas últimas semanas, com que frequência o(a) Sr(a) teve problemas na alimenta... & Categórico & 0.00\% \\
+N015 & Nas duas últimas semanas, com que frequência o(a) Sr(a) teve lentidão para se movi... & Categórico & 0.00\% \\
+N016 & Nas duas últimas semanas, com que frequência o(a) Sr(a) se sentiu deprimido(a), “p... & Categórico & 0.00\% \\
+N017 & Nas duas últimas semanas, com que frequência o(a) Sr(a) se sentiu mal consigo mesm... & Categórico & 0.00\% \\
+P050 & Atualmente, o(a) Sr(a) fuma algum produto do tabaco? & Categórico & 0.00\% \\
+P027 & Com que frequência o(a) Sr(a) costuma consumir alguma bebida alcoólica? & Categórico & 0.00\% \\
+P02801 & Quantos dias por semana o(a) Sr(a) costuma consumir alguma bebida alcoólica? & Discreto & 67.83\% \\
+P029 & Em geral, no dia que o(a) Sr(a) bebe, quantas doses de bebida alcoólica o(a) Sr(a)... & Discreto & 54.46\% \\
+P03201 & Nos últimos trinta dias, o(a) Sr(a) chegou a consumir cinco ou mais doses de bebid... & Categórico & 54.46\% \\
+VDF003 & Rendimento domiciliar per capita (exclusive o rendimento das pessoas cuja condição... & Discreto & 0.05\% \\
+VDF004 & Faixa de rendimento domiciliar per capita (exclusive o rendimento das pessoas cuja... & Categórico & 0.05\% \\
+I00102 & tem algum plano de saúde médico particular, de empresa ou órgão público? & Categórico & 0.00\% \\
+J012 & Quantas vezes \_\_\_ consultou um médico nos últimos 12 meses & Discreto & 29.46\% \\
+VDE014 & Grupamentos de atividade do trabalho principal da semana de referência para pessoa... & Discreto & 21.39\% \\
+E017 & Quantas horas \_\_\_ trabalhava normalmente, por semana, nesse trabalho? & Discreto & 21.39\% \\
+M005010 & No(s) seu(s) trabalho(s), habitualmente, (s) o(a) Sr(a) trabalha(va) algum período... & Categórico & 21.39\% \\
+\end{longtable}
+\end{center}
+
+    \newpage
+
+    \section{Processamento e Refinamento do Conjunto de Dados}
+
+    A etapa de pré-processamento foi guiada pela análise exploratória consolidada na Tabela 2, a qual sintetiza o dicionário de atributos e suas respectivas métricas de completude e distribuição. A partir dessa visão integrada do conjunto de dados, tornou-se evidente que o tratamento das variáveis não poderia ser conduzido por abordagens genéricas, uma vez que os dados apresentam simultaneamente lacunas estruturais, ausências informacionais e heterogeneidade estatística.
+
+    Essa caracterização inicial permitiu identificar que parte dos valores ausentes decorre diretamente da lógica de coleta da Pesquisa Nacional de Saúde (PNS 2019), enquanto outra parcela reflete padrões de perda mais tradicionais, associados a não resposta ou inconsistências de registro. Além disso, observou-se ampla variabilidade entre as variáveis, tanto em termos de distribuição quanto de escala, o que reforça a necessidade de estratégias de tratamento diferenciadas.
+    
+    Dessa forma, a Tabela 2 não apenas documenta o conjunto de dados, mas orienta diretamente o desenho do pipeline de pré-processamento, servindo como base para a definição de regras de imputação, detecção de inconsistências e preservação de estruturas clínicas relevantes ao problema analisado.
+
+    \subsubsection{Tratamento de Dados Ausentes e Vazios Estruturais}
+
+    O processo de mitigação de dados faltantes uniu heurísticas estatísticas com regras biológicas:
+    \begin{enumerate}
+        \item \textbf{Vazios Estruturais:} Saltos no questionário (ex: tempo de exercício para sedentários absolutos) foram preenchidos estruturalmente com o valor zero. Isto evitou imputações inválidas, resgatando atributos como a idade no diagnóstico (redução de 97,6\% para 0,26\% de ausência).
+        \item \textbf{Imputação Estatística:} Colunas com ausência severa foram removidas. Ausências NMAR/MAR entre 5\% e 30\% foram tratadas com \textit{K-Nearest Neighbors} (KNN, k=5). Variáveis contínuas foram imputadas por Média ou Mediana, enquanto variáveis categóricas receberam Moda.
+    \end{enumerate}
+
+    \subsubsection{Engenharia de Variáveis e Discretização}
+    Com a base estruturalmente limpa, a etapa de engenharia de variáveis consistiu na transformação e condensação das variáveis isoladas em indicadores robustos de risco, visando maximizar o ganho de informação para os modelos de IA:
+    \begin{enumerate}
+        \item \textbf{Antropometria:} Peso e Altura foram combinados para a geração do IMC, discretizado em 4 categorias de risco.
+        \item \textbf{Transição Demográfica:} A Idade contínua foi categorizada em Adulto Jovem, Adulto e Meia-Idade.
+        \item \textbf{Matriz Nutricional e Mental:} Respostas binárias de consumo industrializado foram fundidas no \textit{Score\_Ultraprocessados}. As variáveis de saúde mental foram condensadas no \textit{Score\_Saude\_Mental}.
+        \item \textbf{Classificação do Sedentarismo:} A prática de esportes cruzada com minutos semanais gerou as categorias da OMS: \textit{Ativos} ($\ge 150$ min), \textit{Insuficientemente Ativos} ($< 150$ min) e \textit{Sedentários Absolutos}.
+        \item \textbf{Redução Dimensional por Exclusão Lógica:} 27 colunas originais redundantes foram removidas permanentemente da base para prevenir multicolinearidade.
+    \end{enumerate}
+
+
+\begin{table}[h]
+    \centering
+    \caption{Dicionário de Atributos Sintéticos (Engenharia de Variáveis)}
+    \label{tab:eng_var}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lll}
+    \toprule
+    \textbf{Atributo Gerado} & \textbf{Descrição Lógica / Domínio} & \textbf{Natureza} \\ \midrule
+    \textbf{Idade\_Categoria} & Discretização da idade em: Adulto Jovem, Adulto e Meia-Idade & Categórico Ordinal \\
+    \textbf{IMC\_Categoria} & Classificação clínica do IMC (Baixo Peso, Adequado, Sobrepeso, Obeso) & Categórico Ordinal \\
+    \textbf{Score\_Ultraprocessados\_Ontem} & Somatório de 10 variáveis binárias de consumo industrializado (0 a 10) & Discreto \\
+    \textbf{Score\_Saude\_Mental} & Somatório das frequências (escala Likert) para 8 sintomas mentais (0 a 24) & Discreto \\
+    \textbf{Nivel\_Atividade\_Fisica} & Tempo vs Frequência (Ativo $\ge 150$min, Insuf. Ativo, Sedentário) & Categórico Ordinal \\
+    \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+    \subsubsection{Tratamento Avançado de Outliers}
+
+    A análise e o tratamento de \textit{outliers} foram conduzidos de forma individualizada sobre as variáveis contínuas já abstraídas pela Engenharia de Variáveis descrita acima. Como etapa preliminar de higienização, correções algorítmicas foram aplicadas para reverter anomalias introduzidas por tratamentos automáticos anteriores:
+    \begin{itemize}
+        \item A idade de diagnóstico do diabetes (\textit{Q031}), anteriormente corrompida por métodos interquartis ($IQR=[0,0]$), foi restaurada a partir de sua fonte original e condicionada clinicamente apenas a pacientes diabéticos confirmados.
+        \item Variáveis puramente ordinais (como tipo de exercício, \textit{P036}) foram blindadas contra \textit{clipping} matemático.
+        \item O limite inferior das variáveis estritamente positivas (como minutos de atividade e doses de álcool) foi metodologicamente restrito ao valor zero.
+    \end{itemize}
+
+    O diferencial metodológico central consistiu em abandonar métodos puramente genéricos em favor de técnicas adaptadas à composição estatística de cada variável. As técnicas empregadas foram:
+
+    \begin{enumerate}
+        \item \textbf{MAD (\textit{Median Absolute Deviation}):} Para distribuições altamente assimétricas ($|\text{skewness}| > 1$), como \textit{Minutos\_Semanais\_Exercicio} (skew $\approx$ 4,1) e doses de álcool (skew $\approx$ 2,95). O MAD é robusto à presença de valores extremos e menos sensível que o desvio-padrão a caudas longas.
+
+        \item \textbf{Percentis Conservadores [P1, P99]:} Para variáveis com caudas pesadas (curtose $> 5$), como consultas médicas (curtose $\approx$ 208) e horas de trabalho.
+
+        \item \textbf{Limites de Domínio Biológico:} Para variáveis com fronteiras clínicas conhecidas, como o IMC (12 a 70 kg/m\textsuperscript{2}, conforme parâmetros da OMS e da literatura bariátrica) e a idade do diagnóstico do diabetes (0 a 60 anos).
+    \end{enumerate}
+
+    A Tabela \ref{tab:outliers} sintetiza as decisões tomadas para as principais variáveis avaliadas. Duas estratégias de ação foram assumidas: a \textbf{Winsorização} limitada para variáveis com extremos ruidosos (álcool e exercícios), e a geração de \textbf{\textit{Flags} Binárias} (``Extremos Reais'') para variáveis clínicas cujos valores limiares possuem relevância médica ou social, como altíssima renda e intensa carga laboral.
+
+    \begin{table}[h]
+    \centering
+    \caption{Decisões de Tratamento de Outliers por Variável}
+    \label{tab:outliers}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llllrl}
+    \toprule
+    \textbf{Variável} & \textbf{Método} & \textbf{Ação} & \textbf{Limites} & \textbf{Outliers} & \textbf{Justificativa} \\ \midrule
+    P029 (doses álcool) & MAD & Winsorizar & [0; 8,28] & 7,12\% & Assimétrica; minimização de ruído nos extremos \\
+    Minutos\_Semanais\_Exercicio & MAD & Winsorizar & [0; 300] & 8,07\% & Altamente assimétrica \\
+    VDF003 (renda) & MAD & Flag & [-1942; 3818] & 8,08\% & Extremos financeiros reais \\
+    J012 (consultas) & Percentil & Flag & [1; 12] & 0,65\% & Kurtosis elevada ($\approx$ 208) \\
+    E017 (horas trabalho) & Percentil & Flag & [7; 70] & 1,75\% & Possibilidade de dupla jornada extrema \\
+    Q031 (idade diagnóstico) & Domínio & Flag & [0; 60] & 0,00\% & Range de viabilidade biológica \\
+    Calculo\_IMC & Domínio & Manter & [12; 70] & 0,00\% & Eutrofia a obesidade mórbida plausível \\
+    \bottomrule
+    \end{tabular}%
+    }
+    \end{table}
+
+    \textbf{Fato crítico de processamento:} em estrita observância ao princípio de preservação de instâncias, absolutamente nenhuma linha foi removida durante esta fase de filtragem de \textit{outliers}. Isto garantiu a preservação de 100\% dos 20.509 registros originais, salvaguardando as 555 cruciais ocorrências de indivíduos diabéticos confirmados na base de dados. A base resultante (\texttt{08\_pns2019\_outliers\_treated.csv}) manteve a integridade de suas 74 colunas com os ruídos matemáticos contidos.
+
+    \subsubsection{Seleção de Atributos por Ganho de Informação (Entropia)}
+
+    A etapa final de pré-processamento consistiu na seleção de características (Feature Selection), com o objetivo de reduzir a dimensionalidade e isolar as variáveis mais preditivas para a ocorrência do diabetes. O critério adotado foi o Ganho de Informação baseado na Entropia de Shannon, que mensura a redução da incerteza sobre a classe alvo ($Y$) dado o conhecimento de um atributo ($X$).
+    
+    A entropia inicial do conjunto de dados, em relação à variável alvo altamente desbalanceada (555 diabéticos em 20.509 instâncias), foi calculada em aproximadamente $H(Y) \approx 0,179$. Atributos com o maior Ganho de Informação foram ranqueados, e um limiar de corte determinou a retenção exclusiva dos top 25 preditores mais informativos, consolidando um dataset final de 26 colunas (25 variáveis + 1 classe alvo).
+
+    Destacam-se no topo do ranking variáveis essenciais de monitoramento clínico (como o histórico de exames de glicemia e aferição de pressão arterial), além da validação estatística da nossa Engenharia de Variáveis: características sintéticas como o Cálculo do IMC, Score de Ultraprocessados, Nível de Atividade Física e o Score de Saúde Mental figuraram entre as variáveis mais determinantes, confirmando sua correlação matemática e fisiológica com o diabetes. Atributos ruidosos e com baixa capacidade discriminatória foram permanentemente descartados do modelo.
+
+\begin{table}[h]
+    \centering
+    \caption{Top 25 Atributos Selecionados por Ganho de Informação}
+    \label{tab:ganho_informacao}
+    \begin{tabular}{llc}
+    \toprule
+    \textbf{Ranking} & \textbf{Atributo} & \textbf{Ganho de Informação} \\ \midrule
+    1 & Q02901 & 0,009227 \\
+    2 & C008\_Categoria & 0,006859 \\
+    3 & J012 & 0,004154 \\
+    4 & Q00101 & 0,003315 \\
+    5 & P02501 & 0,001909 \\
+    6 & P02102 & 0,001549 \\
+    7 & VDD004A & 0,001544 \\
+    8 & P02002 & 0,001456 \\
+    9 & P04502 & 0,001450 \\
+    10 & P036 & 0,001185 \\
+    11 & Calculo\_IMC & 0,001042 \\
+    12 & P027 & 0,001011 \\
+    13 & Score\_Ultraprocessados\_Ontem & 0,000966 \\
+    14 & Minutos\_Semanais\_Exercicio & 0,000960 \\
+    15 & P04501 & 0,000912 \\
+    16 & P02401 & 0,000894 \\
+    17 & IMC\_Categoria & 0,000886 \\
+    18 & P023 & 0,000807 \\
+    19 & C011 & 0,000784 \\
+    20 & P01101 & 0,000754 \\
+    21 & P02001 & 0,000712 \\
+    22 & Score\_Saude\_Mental & 0,000705 \\
+    23 & P015 & 0,000700 \\
+    24 & P02602 & 0,000628 \\
+    25 & P02601 & 0,000626 \\ \bottomrule
+    \end{tabular}
+\end{table}
+
+\newpage
+
+\bibliography{referencias}
+
+\end{document}

@@ -1,0 +1,11 @@
+coluna,metodo,acao,n_outliers,pct_outliers,lim_inf,lim_sup,justificativa
+V0001,nenhum,manter,0,0.0,,,"Código de Unidade da Federação (11-53) — variável nominal codificada, não analisar"
+Q031,dominio,flag,0,0.0,0.0,60.0,"Idade diagnóstico diabetes: range biológico [0, 60] anos; outliers são erro de digitação"
+P029,mad,winsorizar,1461,7.12,0.0,8.2775,Doses de álcool: skew~2.95 no original; MAD robusto; winsorizar extremos; mín=0
+VDF003,mad,flag,1657,8.08,-1941.9505,3817.9505,Renda per capita com skew=8.77 — outliers extremos são reais (alta renda)
+J012,percentil,flag,134,0.65,1.0,12.0,"Consultas médicas: kurtosis~208 com cauda pesada; percentil [P1,P99] conservador"
+E017,percentil,flag,359,1.75,7.0,70.0,"Horas de trabalho: valores extremos reais (plantões, dupla jornada)"
+Calculo_IMC,dominio,winsorizar,0,0.0,12.0,70.0,"IMC: limites biológicos plausíveis [12, 70] (OMS + extremos clínicos)"
+Score_Ultraprocessados_Ontem,nenhum,manter,0,0.0,,,"Score discreto limitado [0, 10] — sem outliers possíveis por construção"
+Score_Saude_Mental,nenhum,manter,0,0.0,,,"Score PHQ-9 discreto limitado [0, 24] — sem outliers possíveis por construção"
+Minutos_Semanais_Exercicio,mad,winsorizar,1655,8.07,0.0,300.0,Distribuição altamente assimétrica (skew~4.1); MAD robusto; mín=0 (tempo)
