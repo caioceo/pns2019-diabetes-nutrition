@@ -33,6 +33,12 @@ Referências:
 
 import json
 import os
+import sys
+if hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
 import warnings
 import numpy as np
 import pandas as pd
@@ -111,11 +117,11 @@ ESTRATEGIAS = {
         "justificativa": "Renda per capita com skew=8.77 — outliers extremos são reais (alta renda)"
     },
 
-    # ── Saúde / consultas ─────────────────────────────────────────
-    "J012": {
-        "metodo": "percentil",
-        "acao": "flag",
-        "justificativa": "Consultas médicas: kurtosis~208 com cauda pesada; percentil [P1,P99] conservador"
+    # ── Alimentos e Bebidas ───────────────────────────────────────
+    "Exposicao_Metabolica_Refrigerante": {
+        "metodo": "nenhum",
+        "acao": "manter",
+        "justificativa": "Escore contínuo limitado [0.0, 14.0] — sem outliers possíveis por construção"
     },
     "E017": {
         "metodo": "percentil",
@@ -124,11 +130,10 @@ ESTRATEGIAS = {
     },
 
     # ── Álcool ────────────────────────────────────────────────────
-    "P029": {
-        "metodo": "mad",
-        "acao": "winsorizar",
-        "lim_inferior_minimo": 0,
-        "justificativa": "Doses de álcool: skew~2.95 no original; MAD robusto; winsorizar extremos; mín=0"
+    "Classificacao_Consumo_Alcool": {
+        "metodo": "nenhum",
+        "acao": "manter",
+        "justificativa": "Escore categórico ordinal clínico [0, 3] (OMS / Gigliotti & Bessa) — sem outliers possíveis"
     },
 
     # ── Idade do diagnóstico ──────────────────────────────────────
@@ -381,15 +386,7 @@ else:
     print("  [AVISO] P036 não encontrada em uma das bases")
 del df_orig
 
-# 2c. P029 — doses de álcool (winsorização com limites IQR negativos [-3.37, 8.42])
-print("\n[RESTAURAR] P029 (doses de álcool/dia)...")
-print(f"  Estado atual: min={df['P029'].min():.2f}, max={df['P029'].max():.2f}")
-# Valores negativos de doses não fazem sentido → clipar em 0 pelo menos
-if df["P029"].min() < 0:
-    n_neg = (df["P029"] < 0).sum()
-    df.loc[df["P029"] < 0, "P029"] = 0
-    print(f"  Corrigido {n_neg} valores negativos → 0 (doses não podem ser negativas)")
-    print(f"  Após correção: min={df['P029'].min():.2f}, max={df['P029'].max():.2f}")
+# 2c. P029 — substituída por Classificacao_Consumo_Alcool (sem necessidade de restauração)
 
 
 # ─────────────────────────────────────────────

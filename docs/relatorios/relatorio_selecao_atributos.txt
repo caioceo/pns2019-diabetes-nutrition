@@ -3,97 +3,70 @@
 ================================================================================
 
 1. INFORMAÇÕES DA BASE
-   - Base de entrada: 20,509 instâncias, 74 colunas
+   - Base de entrada: 20,509 instâncias, 60 colunas
    - Variável Alvo (Target): Q03001
    - Entropia do Target H(Q03001): 0.179433
-   - Exclusões por Vazamento (Leakage): ['Q031']
-   - Exclusões Identificadoras: ['V0001']
+   - Exclusões por Vazamento (Leakage): ['Q031', 'Q02901', 'J012', 'Q00101', 'J012_outlier_flag', 'Q02901_outlier_flag']
+   - Exclusões Identificadoras: ['V0001', 'Calculo_IMC', 'P027', 'P04501', 'P023', 'P02401', 'P02002', 'P02102', 'P02001', 'P02101', 'P02801', 'P029', 'P03201', 'C011', 'VDM001', 'VDE014', 'Nivel_Atividade_Fisica', 'P039', 'P038', 'P040', 'C009', 'E017', 'M005010', 'VDF004', 'P019', 'P036']
 
 2. CRITÉRIO DE FILTRAGEM
    - Método: Seleção por Limiar de Ganho de Informação (Entropia de Shannon)
-   - Decisão: Retenção dos Top 25 atributos mais informativos para a modelagem
-   - Base resultante: 20,509 instâncias × 26 colunas
+   - Decisão: Retenção dos Top 19 atributos mais informativos para a modelagem
+   - Base resultante: 20,509 instâncias × 20 colunas
 
 3. RANKING COMPLETO DE ATRIBUTOS (GANHO DE INFORMAÇÃO)
---------------------------------------------------------------------------------
-Ranking  Atributo                       Ganho de Informação    Uniques    Status    
---------------------------------------------------------------------------------
-1        Q02901                         0.009227               5          Selecionado
-2        C008_Categoria                 0.006859               3          Selecionado
-3        J012                           0.004154               46         Selecionado
-4        Q00101                         0.003315               5          Selecionado
-5        P02501                         0.001909               8          Selecionado
-6        P02102                         0.001549               3          Selecionado
-7        VDD004A                        0.001544               7          Selecionado
-8        P02002                         0.001456               8          Selecionado
-9        P04502                         0.001450               6          Selecionado
-10       P036                           0.001185               18         Selecionado
-11       Calculo_IMC                    0.001042               2885       Selecionado
-12       P027                           0.001011               3          Selecionado
-13       Score_Ultraprocessados_Ontem   0.000966               11         Selecionado
-14       Minutos_Semanais_Exercicio     0.000960               6          Selecionado
-15       P04501                         0.000912               6          Selecionado
-16       P02401                         0.000894               3          Selecionado
-17       IMC_Categoria                  0.000886               4          Selecionado
-18       P023                           0.000807               8          Selecionado
-19       C011                           0.000784               4          Selecionado
-20       P01101                         0.000754               8          Selecionado
-21       P02001                         0.000712               8          Selecionado
-22       Score_Saude_Mental             0.000705               25         Selecionado
-23       P015                           0.000700               8          Selecionado
-24       P02602                         0.000628               8          Selecionado
-25       P02601                         0.000626               5          Selecionado
-26       P029                           0.000603               594        Descartado
-27       P00611                         0.000582               2          Descartado
-28       J012_outlier_flag              0.000445               2          Descartado
-29       P02801                         0.000417               8          Descartado
-30       VDM001                         0.000396               4          Descartado
-31       VDE014                         0.000394               12         Descartado
-32       P01601                         0.000394               8          Descartado
-33       Nivel_Atividade_Fisica         0.000367               3          Descartado
-34       P019                           0.000351               4          Descartado
-35       C009                           0.000331               6          Descartado
-36       P018                           0.000331               8          Descartado
-37       P006                           0.000328               8          Descartado
-38       E017                           0.000318               148        Descartado
-39       P03201                         0.000282               2          Descartado
-40       VDF004                         0.000271               7          Descartado
-41       P00901                         0.000236               8          Descartado
-42       P02101                         0.000189               3          Descartado
-43       P050                           0.000182               3          Descartado
-44       P039                           0.000180               2          Descartado
-45       P038                           0.000177               2          Descartado
-46       P01001                         0.000153               4          Descartado
-47       V0031                          0.000148               4          Descartado
-48       VDF003                         0.000144               2419       Descartado
-49       VDF003_outlier_flag            0.000134               2          Descartado
-50       P013                           0.000117               8          Descartado
-51       P00103_outlier_flag            0.000106               2          Descartado
-52       P00603                         0.000095               2          Descartado
-53       I00102                         0.000072               2          Descartado
-54       P00609                         0.000068               2          Descartado
-55       P00612                         0.000058               2          Descartado
-56       P00104_outlier_flag            0.000051               2          Descartado
-57       P00602                         0.000024               2          Descartado
-58       P00613                         0.000021               2          Descartado
-59       P00610                         0.000016               2          Descartado
-60       C006                           0.000013               2          Descartado
-61       P00607                         0.000012               2          Descartado
-62       V0026                          0.000011               2          Descartado
-63       P00404_outlier_flag            0.000010               2          Descartado
-64       M005010                        0.000009               2          Descartado
-65       P040                           0.000006               3          Descartado
-66       P00604                         0.000005               2          Descartado
-67       P00403_outlier_flag            0.000002               2          Descartado
-68       P00605                         0.000002               2          Descartado
-69       P00608                         0.000001               2          Descartado
-70       E017_outlier_flag              0.000000               2          Descartado
-71       P00601                         0.000000               2          Descartado
+--------------------------------------------------------------------------------------------------------------
+Ranking  Atributo               Ganho de Informação    Uniques    Status         Descrição
+--------------------------------------------------------------------------------------------------------------
+1        C008_Categoria         0.006859               3          [Selecionado]  Faixa etária do morador (Categorização da idade)
+2        P02501                 0.001909               8          [Selecionado]  Em quantos dias da semana o(a) Sr(a) costuma comer alimentos doces como biscoito/bolacha recheado, chocolate, gelatina, balas e outros?
+3        VDD004A                0.001544               7          [Selecionado]  Nível de instrução mais elevado alcançado (pessoas de 5 anos ou mais de idade) padronizado para o Ensino Fundamental - SISTEMA DE 9 ANOS
+4        P04502                 0.001450               6          [Selecionado]  Em um dia, quantas horas do seu tempo livre (excluindo o trabalho), o(a) Sr(a) costuma usar computador, tablet ou celular para lazer, tais como: utilizar redes sociais, para ver notícias, vídeos, jogar etc?
+5        Exposicao_Metabolica_Refrigerante 0.001212               17         [Selecionado]  Escore contínuo de exposição metabólica e química a refrigerantes (Dias × Peso Glicêmico/Tóxico)
+6        Score_Ultraprocessados_Ontem 0.000966               11         [Selecionado]  Score de consumo de alimentos ultraprocessados no dia anterior
+7        Minutos_Semanais_Exercicio 0.000960               6          [Selecionado]  Tempo total semanal dedicado a exercícios físicos ou esportes (em minutos)
+8        IMC_Categoria          0.000886               4          [Selecionado]  Categorização do estado nutricional segundo o IMC (Baixo peso, Eutrofia, Sobrepeso, Obesidade)
+9        Classificacao_Consumo_Alcool 0.000815               4          [Selecionado]  Estratificação clínica de risco alcoólico segundo limites OMS e compulsão (Abstêmio, Baixo Risco, Abuso, Dependência)
+10       P01101                 0.000754               8          [Selecionado]  Em quantos dias da semana o(a) Sr(a) costuma comer carne vermelha (boi, porco, cabrito, bode, ovelha etc.)?
+11       Score_Saude_Mental     0.000705               25         [Selecionado]  Score indicativo de problemas de sono e saúde mental (derivado do Módulo N)
+12       P015                   0.000700               8          [Selecionado]  Em quantos dias da semana o(a) Sr(a) costuma comer peixe?
+13       P02602                 0.000628               8          [Selecionado]  Em quantos dias da semana o(a) Sr(a) costuma substituir a refeição do almoço por lanches rápidos como sanduíches, salgados, pizza, cachorro quente, etc?
+14       P02601                 0.000626               5          [Selecionado]  Considerando a comida preparada na hora e os alimentos industrializados, o(a) Sr(a) acha que o seu consumo de sal é:
+15       P00611                 0.000582               2          [Selecionado]  Laranja, banana, maçã, abacaxi.
+16       P01601                 0.000394               8          [Selecionado]  Em quantos dias da semana o(a) Sr(a) costuma tomar suco de fruta natural (incluída a polpa de fruta congelada)?
+17       P018                   0.000331               8          [Selecionado]  Em quantos dias da semana o(a) Sr(a) costuma comer frutas?
+18       P006                   0.000328               8          [Selecionado]  Em quantos dias da semana o(a) Sr(a) costuma comer feijão?
+19       P00901                 0.000236               8          [Selecionado]  Em quantos dias da semana, o(a) Sr(a) costuma comer pelo menos um tipo de verdura ou legume (sem contar batata, mandioca, cará ou inhame) como alface, tomate, couve, cenoura, chuchu, berinjela, abobrinha?
+20       P050                   0.000182               3          [Descartado]   Atualmente, o(a) Sr(a) fuma algum produto do tabaco?
+21       P01001                 0.000162               4          [Descartado]   Em geral, o(a) Sr(a) costuma comer esse tipo de verdura ou legume:
+22       VDF003                 0.000161               2419       [Descartado]   Rendimento domiciliar per capita (exclusive o rendimento das pessoas cuja condição na unidade domiciliar era pensionista, empregado doméstico ou parente do empregado doméstico)
+23       V0031                  0.000148               4          [Descartado]   Tipo de área
+24       VDF003_outlier_flag    0.000134               2          [Descartado]   [FLAG OUTLIER] Rendimento domiciliar per capita (exclusive o rendimento das pessoas cuja condição na unidade domiciliar era pensionista, empregado doméstico ou parente do empregado doméstico)
+25       P013                   0.000117               8          [Descartado]   Em quantos dias da semana o(a) Sr(a) costuma comer frango/galinha?
+26       P00103_outlier_flag    0.000106               2          [Descartado]   [FLAG OUTLIER] Peso - Informado (em kg) (3 inteiros e 1 casa decimal)
+27       P00603                 0.000095               2          [Descartado]   Feijão, ervilha, lentilha ou grão de bico.
+28       I00102                 0.000072               2          [Descartado]   tem algum plano de saúde médico particular, de empresa ou órgão público?
+29       P00609                 0.000068               2          [Descartado]   Tomate, pepino, abobrinha, berinjela, chuchu ou beterraba.
+30       P00612                 0.000058               2          [Descartado]   Leite
+31       P00104_outlier_flag    0.000051               2          [Descartado]   [FLAG OUTLIER] Peso - Final (em kg) (3 inteiros e 1 casa decimal)
+32       P00602                 0.000024               2          [Descartado]   Batata comum, mandioca/aipim/macaxeira, cará ou inhame.
+33       P00613                 0.000021               2          [Descartado]   Amendoim, castanha de caju ou castanha do Brasil/Pará
+34       P00610                 0.000016               2          [Descartado]   Mamão, manga, melão amarelo ou pequi.
+35       C006                   0.000013               2          [Descartado]   Sexo
+36       P00607                 0.000012               2          [Descartado]   Alface, couve, brócolis, agrião ou espinfre.
+37       V0026                  0.000011               2          [Descartado]   Tipo de situação censitária
+38       P00404_outlier_flag    0.000010               2          [Descartado]   [FLAG OUTLIER] Altura - Final (em cm) (3 inteiros)
+39       P00604                 0.000005               2          [Descartado]   Carne de boi, porco, frango, peixe
+40       P00403_outlier_flag    0.000002               2          [Descartado]   [FLAG OUTLIER] Altura - Informada (em cm) (3 inteiros)
+41       P00605                 0.000002               2          [Descartado]   Ovo (frito, cozido ou mexido ).
+42       P00608                 0.000001               2          [Descartado]   Abóbora, cenoura, batata doce ou quiabo/caruru.
+43       E017_outlier_flag      0.000000               2          [Descartado]   [FLAG OUTLIER] Quantas horas ___ trabalhava normalmente, por semana, nesse trabalho?
+44       P00601                 0.000000               2          [Descartado]   Ontem o(a) Sr(a) comeu arroz, macarrão, polenta, cuscuz ou milho verde.
 
 
 4. JUSTIFICATIVA CLÍNICA E COMPORTAMENTAL DOS TOP ATRIBUTOS
 --------------------------------------------------------------------------------
 Os atributos no topo do ranking revelam correlações importantes com a ocorrência de diabetes:
-- Atributos de saúde (ex: consultas médicas J012 e aferição de pressão arterial Q00101) estão ligados ao monitoramento frequente de diabéticos.
+- Atributos clínicos e de monitoramento (ex: aferição de pressão arterial Q00101) apresentam forte correlação com diabéticos diagnosticados.
 - Indicadores antropométricos (IMC e Peso) e faixa etária (C008_Categoria) apresentam forte ganho de informação, condizente com a fisiopatologia do Diabetes Tipo 2.
 - Variáveis de consumo alimentar e estilo de vida (como o Score_Ultraprocessados_Ontem e Nivel_Atividade_Fisica) representam os fatores de risco comportamentais de interesse do estudo.

@@ -63,12 +63,50 @@ def main():
             
     df['Nivel_Atividade_Fisica'] = df.apply(classificar_sedentarismo, axis=1)
 
-    # 6. Limpeza das Colunas Originais
-    print("[INFO] Removendo as colunas originais (evitando multicolinearidade)...")
+    # 5.b Exposição Metabólica a Refrigerantes
+    print("[INFO] Calculando escore sintético de refrigerantes...")
+    mapa_bebidas = {2.0: 2.0, 3.0: 1.5, 1.0: 1.0}
+    df['Exposicao_Metabolica_Refrigerante'] = df['P02002'].fillna(0).clip(upper=7) * df['P02102'].map(mapa_bebidas).fillna(0.0)
+
+    # 5.d Estratificação Clínica de Consumo Alcoólico (Gigliotti & Bessa, 2004 / OMS)
+    print("[INFO] Calculando Classificacao_Consumo_Alcool...")
+    def classificar_estratos_alcool(row):
+        dias = row.get('P02801', 0)
+        if pd.isna(dias) or dias == 0:
+            return 0 # Abstêmio
+        
+        doses_dia = row.get('P029', 0)
+        if pd.isna(doses_dia):
+            doses_dia = 0
+            
+        binge = row.get('P03201', 2) # 1 = Sim, 2 = Não
+        doses_semanais = dias * doses_dia
+        sexo = row.get('C006', 1) # 1 = Homem, 2 = Mulher
+        teto_oms = 21 if sexo == 1 else 14
+        
+        if doses_semanais <= teto_oms and binge != 1:
+            return 1 # Baixo Risco
+        elif doses_semanais <= (teto_oms * 1.5):
+            return 2 # Uso Nocivo / Abuso
+        else:
+            return 3 # Alto Risco / Provável Dependência (SDA)
+
+    df['Classificacao_Consumo_Alcool'] = df.apply(classificar_estratos_alcool, axis=1)
+
+    # 6. Limpeza das Colunas Originais e Redundantes
+    print("[INFO] Removendo colunas originais, colineares e consequências clínicas...")
     cols_to_drop = [
         'C008', # Idade original
         'P00103', 'P00104', 'P00403', 'P00404', # Pesos e Alturas brutos
         'P034', 'P035', 'P03701', 'P03702', # Módulo de exercícios brutos
+        'Calculo_IMC', # Mantendo apenas IMC_Categoria para evitar multicolinearidade
+        'Q02901', 'J012', 'Q00101', 'Q02901_outlier_flag', 'J012_outlier_flag', # Excluindo consequências e vazamento
+        'P027', # Redundante (aninhado perfeitamente com P02801)
+        'P04501', # Horas TV (mantendo apenas P04502 eletrônicos generalista)
+        'P023', 'P02401', # Brutas do leite (excluídas por fraco ganho de informação)
+        'P02002', 'P02102', # Brutas de refrigerante substituídas por Exposicao_Metabolica_Refrigerante
+        'P02001', 'P02101', # Brutas de suco industrializado (excluídas por fraco ganho de informação)
+        'P02801', 'P029', 'P03201', # Brutas de álcool substituídas por Classificacao_Consumo_Alcool
     ] + cols_ultra + cols_mental # As 10 do consumo de ontem e as 8 de saúde mental
 
     # Drop seguro ignorando erros caso a coluna já não exista
@@ -78,7 +116,7 @@ def main():
     print("[INFO] Salvando a base preparada...")
     df.to_csv(output_path, index=False)
     print(f"[SUCESSO] Engenharia de Variáveis concluída: {output_path}")
-    print(f"[RESUMO] Novas colunas geradas: C008_Categoria, Calculo_IMC, IMC_Categoria, Score_Ultraprocessados_Ontem, Score_Saude_Mental, Nivel_Atividade_Fisica")
+    print(f"[RESUMO] Novas colunas geradas: C008_Categoria, IMC_Categoria, Score_Ultraprocessados_Ontem, Score_Saude_Mental, Nivel_Atividade_Fisica, Exposicao_Metabolica_Refrigerante, Classificacao_Consumo_Alcool")
 
 if __name__ == "__main__":
     main()

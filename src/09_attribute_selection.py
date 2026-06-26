@@ -14,6 +14,13 @@ Output:
 """
 
 import os
+import sys
+if hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+import json
 import numpy as np
 import pandas as pd
 
@@ -21,16 +28,77 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 PATH_INPUT = os.path.join(BASE_DIR, "data", "processed", "08_pns2019_outliers_treated.csv")
 PATH_OUTPUT_DATA = os.path.join(BASE_DIR, "data", "processed", "09_pns2019_selected_features.csv")
+PATH_OUTPUT_DATA_NAMED = os.path.join(BASE_DIR, "data", "processed", "09_pns2019_selected_features_nomeados.csv")
 PATH_REPORT = os.path.join(BASE_DIR, "docs", "relatorios", "relatorio_selecao_atributos.txt")
 PATH_CSV_DECISÕES = os.path.join(BASE_DIR, "docs", "relatorios", "decisoes_selecao.csv")
+PATH_TOP25_CSV = os.path.join(BASE_DIR, "docs", "relatorios", "tabela_top25_atributos_selecionados.csv")
+PATH_DICT_JSON = os.path.join(BASE_DIR, "data", "first_atributes_dictionary_filter.json")
+PATH_CLEAN_DICT_JSON = os.path.join(BASE_DIR, "data", "processed", "05_pns2019_clean_dictionary.json")
 
 TARGET_COL = "Q03001"
 
-# Vazamentos de dados (Data Leakage) que devem ser excluídos
-LEAKS = ["Q031"]  # Idade no diagnóstico (só existe para quem tem diabetes)
+# Vazamentos de dados (Data Leakage) e consequências pós-diagnóstico que devem ser excluídos
+LEAKS = ["Q031", "Q02901", "J012", "Q00101", "J012_outlier_flag", "Q02901_outlier_flag"]  # Vazamentos/consequências
 
-# Identificadores geográficos ou colunas que não devem entrar no modelo preditivo
-EXCLUIR_MODELAGEM = ["V0001"] 
+# Identificadores geográficos, redundantes ou ruídos demográficos/laborais sem nexo causal nutricional pro diabetes
+EXCLUIR_MODELAGEM = [
+    "V0001", "Calculo_IMC", "P027", "P04501", "P023", "P02401", "P02002", "P02102", "P02001", "P02101", "P02801", "P029", "P03201",
+    "C011", "VDM001", "VDE014", "Nivel_Atividade_Fisica", "P039", "P038", "P040", "C009", "E017", "M005010", "VDF004",
+    "P019",  # 47,2% NaN estrutural (pergunta condicional do IBGE) — inviável para modelagem
+    "P036",  # ρ=0.80 com Minutos_Semanais_Exercicio (colinearidade severa)
+]
+
+def carregar_dicionarios():
+    """Carrega descrições dos atributos a partir dos arquivos JSON e mapeamentos de derivadas."""
+    descricoes = {}
+    
+    derivadas = {
+        "Q03001": "Diagnóstico médico de diabetes (Variável Alvo / Target)",
+        "Calculo_IMC": "Cálculo contínuo do Índice de Massa Corporal (IMC em kg/m²)",
+        "IMC_Categoria": "Categorização do estado nutricional segundo o IMC (Baixo peso, Eutrofia, Sobrepeso, Obesidade)",
+        "C008_Categoria": "Faixa etária do morador (Categorização da idade)",
+        "Score_Ultraprocessados_Ontem": "Score de consumo de alimentos ultraprocessados no dia anterior",
+        "Minutos_Semanais_Exercicio": "Tempo total semanal dedicado a exercícios físicos ou esportes (em minutos)",
+        "Score_Saude_Mental": "Score indicativo de problemas de sono e saúde mental (derivado do Módulo N)",
+        "Nivel_Atividade_Fisica": "Classificação do nível de atividade física (Ativo, Insuficientemente ativo, Inativo)",
+        "Exposicao_Metabolica_Refrigerante": "Escore contínuo de exposição metabólica e química a refrigerantes (Dias × Peso Glicêmico/Tóxico)",
+        "Classificacao_Consumo_Alcool": "Estratificação clínica de risco alcoólico segundo limites OMS e compulsão (Abstêmio, Baixo Risco, Abuso, Dependência)",
+        "VDF003_outlier_flag": "[FLAG OUTLIER] Rendimento domiciliar per capita com valor extremo",
+        "J012_outlier_flag": "[FLAG OUTLIER] Consultas médicas nos últimos 12 meses com valor extremo",
+        "E017_outlier_flag": "[FLAG OUTLIER] Horas trabalhadas por semana com valor extremo",
+        "P00103_outlier_flag": "[FLAG OUTLIER] Peso informado com valor extremo",
+        "P00104_outlier_flag": "[FLAG OUTLIER] Peso final com valor extremo",
+        "P00403_outlier_flag": "[FLAG OUTLIER] Altura informada com valor extremo",
+        "P00404_outlier_flag": "[FLAG OUTLIER] Altura final com valor extremo"
+    }
+    descricoes.update(derivadas)
+    
+    if os.path.exists(PATH_CLEAN_DICT_JSON):
+        try:
+            with open(PATH_CLEAN_DICT_JSON, "r", encoding="utf-8") as f:
+                descricoes.update(json.load(f))
+        except Exception:
+            pass
+            
+    if os.path.exists(PATH_DICT_JSON):
+        try:
+            with open(PATH_DICT_JSON, "r", encoding="utf-8") as f:
+                descricoes.update(json.load(f))
+        except Exception:
+            pass
+            
+    return descricoes
+
+def obter_descricao(col, descricoes_dict):
+    if col in descricoes_dict:
+        return descricoes_dict[col]
+    elif col.endswith("_outlier_flag"):
+        base_col = col.replace("_outlier_flag", "")
+        if base_col in descricoes_dict:
+            return f"[FLAG OUTLIER] {descricoes_dict[base_col]}"
+        else:
+            return "[FLAG OUTLIER] Variável com valor extremo"
+    return "Descrição não encontrada no dicionário"
 
 def shannon_entropy(series):
     """Calcula a Entropia de Shannon H(Y) de uma variável discreta."""
@@ -63,8 +131,8 @@ def information_gain(df, feature, target):
     else:
         valores_calculo = df[feature]
     
-    # Agrupa a classe alvo pelas categorias do atributo avaliado
-    grupos = df[target].groupby(valores_calculo)
+    # Agrupa a classe alvo pelas categorias do atributo avaliado (incluindo NaNs como categoria estrutural)
+    grupos = df[target].groupby(valores_calculo, dropna=False)
     for val, grupo in grupos:
         p_x = len(grupo) / total_instancias
         h_grupo = shannon_entropy(grupo)
@@ -97,6 +165,7 @@ def main():
     ]
     
     print(f"[INFO] Analisando {len(colunas_analise)} atributos...")
+    descricoes_dict = carregar_dicionarios()
     
     # Calcular Ganho de Informação para cada atributo
     resultados = []
@@ -104,6 +173,7 @@ def main():
         ig = information_gain(df, col, TARGET_COL)
         resultados.append({
             "atributo": col,
+            "descricao": obter_descricao(col, descricoes_dict),
             "ganho_informacao": ig,
             "tipo": str(df[col].dtype),
             "valores_unicos": df[col].nunique()
@@ -118,20 +188,32 @@ def main():
     
     # Definir critério de corte:
     # 1. Podemos filtrar por um threshold de relevância (ex: IG > 0.0005)
-    # 2. Ou selecionar os TOP N atributos mais informativos (ex: Top 25)
-    # Para o estudo de diabetes e hábitos nutricionais, selecionaremos os Top 25 atributos mais informativos
-    TOP_N = 25
-    atributos_selecionados = df_resultados.head(TOP_N)["atributo"].tolist()
+    # 2. Ou selecionar os TOP N atributos mais informativos (ex: Top 19)
+    # Para o estudo de diabetes e hábitos nutricionais, selecionaremos no máximo 19 atributos (restrição de desbalanceamento + remoção de colinearidade)
+    TOP_N = 19
+    df_top_n = df_resultados.head(TOP_N).copy()
+    df_top_n.insert(0, "ranking", range(1, TOP_N + 1))
+    atributos_selecionados = df_top_n["atributo"].tolist()
+    
+    # Salvar tabela específica dos Top 25 selecionados com descrição
+    df_top_n.to_csv(PATH_TOP25_CSV, index=False, encoding="utf-8")
+    print(f"[SALVO] Tabela dos Top {TOP_N} atributos selecionados salva em: {PATH_TOP25_CSV}")
     
     print(f"\n[SELEÇÃO] Top {TOP_N} atributos selecionados por Entropia:")
-    for idx, row in df_resultados.head(TOP_N).iterrows():
-        print(f"  {row['atributo']:<30} | IG: {row['ganho_informacao']:.6f} | Uniques: {row['valores_unicos']}")
+    for idx, row in df_top_n.iterrows():
+        print(f"  {row['ranking']:02d}. {row['atributo']:<25} | IG: {row['ganho_informacao']:.6f} | {row['descricao']}")
         
     # Criar a nova base de dados apenas com os atributos selecionados + o Target
     colunas_finais = atributos_selecionados + [TARGET_COL]
     df_selecionado = df[colunas_finais]
     df_selecionado.to_csv(PATH_OUTPUT_DATA, index=False, encoding="utf-8")
     print(f"\n[SALVO] Base filtrada salva em: {PATH_OUTPUT_DATA}")
+    
+    # Exportar também a base filtrada com os nomes descritivos nas colunas
+    mapeamento_nomes = {col: f"{col} - {obter_descricao(col, descricoes_dict)}" for col in colunas_finais}
+    df_selecionado_named = df_selecionado.rename(columns=mapeamento_nomes)
+    df_selecionado_named.to_csv(PATH_OUTPUT_DATA_NAMED, index=False, encoding="utf-8")
+    print(f"[SALVO] Base filtrada com nomes descritivos salva em: {PATH_OUTPUT_DATA_NAMED}")
     print(f"[INFO] Dimensões da base final: {df_selecionado.shape[0]:,} linhas × {df_selecionado.shape[1]} colunas.")
     
     # Gerar Relatório Textual para o Artigo
@@ -153,18 +235,19 @@ def main():
         f.write(f"   - Base resultante: {df_selecionado.shape[0]:,} instâncias × {df_selecionado.shape[1]} colunas\n\n")
         
         f.write(f"3. RANKING COMPLETO DE ATRIBUTOS (GANHO DE INFORMAÇÃO)\n")
-        f.write("-" * 80 + "\n")
-        f.write(f"{'Ranking':<8} {'Atributo':<30} {'Ganho de Informação':<22} {'Uniques':<10} {'Status':<10}\n")
-        f.write("-" * 80 + "\n")
+        f.write("-" * 110 + "\n")
+        f.write(f"{'Ranking':<8} {'Atributo':<22} {'Ganho de Informação':<22} {'Uniques':<10} {'Status':<14} {'Descrição'}\n")
+        f.write("-" * 110 + "\n")
         
         for idx, (_, row) in enumerate(df_resultados.iterrows(), 1):
-            status = "Selecionado" if row['atributo'] in atributos_selecionados else "Descartado"
-            f.write(f"{idx:<8} {row['atributo']:<30} {row['ganho_informacao']:<22.6f} {row['valores_unicos']:<10} {status:<10}\n")
+            status = "[Selecionado]" if row['atributo'] in atributos_selecionados else "[Descartado]"
+            desc_completa = str(row['descricao'])
+            f.write(f"{idx:<8} {row['atributo']:<22} {row['ganho_informacao']:<22.6f} {row['valores_unicos']:<10} {status:<14} {desc_completa}\n")
             
         f.write("\n\n4. JUSTIFICATIVA CLÍNICA E COMPORTAMENTAL DOS TOP ATRIBUTOS\n")
         f.write("-" * 80 + "\n")
         f.write("Os atributos no topo do ranking revelam correlações importantes com a ocorrência de diabetes:\n")
-        f.write("- Atributos de saúde (ex: consultas médicas J012 e aferição de pressão arterial Q00101) estão ligados ao monitoramento frequente de diabéticos.\n")
+        f.write("- Atributos clínicos e de monitoramento (ex: aferição de pressão arterial Q00101) apresentam forte correlação com diabéticos diagnosticados.\n")
         f.write("- Indicadores antropométricos (IMC e Peso) e faixa etária (C008_Categoria) apresentam forte ganho de informação, condizente com a fisiopatologia do Diabetes Tipo 2.\n")
         f.write("- Variáveis de consumo alimentar e estilo de vida (como o Score_Ultraprocessados_Ontem e Nivel_Atividade_Fisica) representam os fatores de risco comportamentais de interesse do estudo.\n")
 

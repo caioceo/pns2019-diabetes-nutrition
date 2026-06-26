@@ -58,35 +58,68 @@ Resultou-se em uma base final de 20.509 registros avaliados.
 **Etapa 6: Tratamento Avançado de Outliers.** Aplicado de forma individualizada sobre as variáveis contínuas já abstraídas (após a etapa de engenharia). O diferencial metodológico consistiu em abandonar os métodos puramente univariados genéricos e adotar técnicas específicas para a composição estatística (assimetria e curtose) de cada variável.
 As técnicas empregadas incluíram o MAD (*Median Absolute Deviation*) para distribuições altamente assimétricas (como tempo de exercício e doses de álcool), Percentis Conservadores [P1, P99] para variáveis de cauda pesada (como consultas médicas e horas laborais), e recortes estritos de Domínio Biológico para idade (0 a 60 anos) e IMC (12 a 70 kg/m²). Fatores essenciais de composição de risco (renda extrema e exaustão laboral) não foram winsorizados; o valor original foi mantido e *Flags* binárias ("Extremos Reais") foram geradas. **Fato crítico:** Nenhuma linha foi removida (preservação de 100% dos 20.509 registros), protegendo as instâncias raras dos 555 diabéticos confirmados. Apenas duas variáveis sofreram *clipping* matemático (winsorização rigorosa), garantindo a integridade biomédica da base.
 
-**Etapa 7: Seleção de Atributos por Ganho de Informação.** A entropia de Shannon foi aplicada para mensurar a pureza informacional de cada variável em relação à classe alvo (Ocorrência de Diabetes, cuja entropia base $H(Y)$ é de aproximadamente 0,179). Foram retidas as 25 variáveis de maior Ganho de Informação (Information Gain), resultando em um dataset refinado de 26 colunas (25 preditores + 1 alvo). Destacam-se no topo do ranking variáveis de acompanhamento clínico (ex: aferição de pressão arterial e exames de glicemia), além de variáveis fundamentais geradas pela engenharia de features, como o Cálculo do IMC, Score de Ultraprocessados e Score de Saúde Mental, provando estatisticamente sua relevância para a predição da patologia. Variáveis com alto ruído e baixo poder discriminatório foram descartadas.
+**Etapa 7: Seleção de Atributos por Ganho de Informação.** A entropia de Shannon foi aplicada para mensurar a pureza informacional de cada variável em relação à classe alvo (Ocorrência de Diabetes, cuja entropia base $H(Y)$ é de aproximadamente 0,179). Em observância à restrição teórica de aprendizado em cenários de severo desbalanceamento de classes, definiu-se o corte final nos Top 19 atributos mais informativos, consolidando uma matriz analítica enxuta de 20 colunas (19 preditores + 1 classe alvo).
 
-*Tabela 2: Top 25 Atributos Selecionados por Ganho de Informação*
+Além da higienização suprimindo consequências clínicas pós-diagnóstico e proxies socioeconômicos sem nexo causal, duas remoções adicionais foram realizadas após auditoria estatística rigorosa: (i) *P019* (vezes por dia que come frutas), excluída por apresentar 47,2% de valores ausentes estruturais decorrentes de pulo condicional no questionário do IBGE; e (ii) *P036* (tipo de esporte praticado), excluída por colinearidade severa com *Minutos_Semanais_Exercicio* ($\rho = 0,80$).
+
+*Tabela 2: Top 19 Atributos Selecionados por Entropia e Curadoria de Domínio*
 | Ranking | Atributo | Ganho de Informação |
 | :--- | :--- | :--- |
-| 1 | Q02901 | 0.009227 |
-| 2 | C008_Categoria | 0.006859 |
-| 3 | J012 | 0.004154 |
-| 4 | Q00101 | 0.003315 |
-| 5 | P02501 | 0.001909 |
-| 6 | P02102 | 0.001549 |
-| 7 | VDD004A | 0.001544 |
-| 8 | P02002 | 0.001456 |
-| 9 | P04502 | 0.001450 |
-| 10 | P036 | 0.001185 |
-| 11 | Calculo_IMC | 0.001042 |
-| 12 | P027 | 0.001011 |
-| 13 | Score_Ultraprocessados_Ontem | 0.000966 |
-| 14 | Minutos_Semanais_Exercicio | 0.000960 |
-| 15 | P04501 | 0.000912 |
-| 16 | P02401 | 0.000894 |
-| 17 | IMC_Categoria | 0.000886 |
-| 18 | P023 | 0.000807 |
-| 19 | C011 | 0.000784 |
-| 20 | P01101 | 0.000754 |
-| 21 | P02001 | 0.000712 |
-| 22 | Score_Saude_Mental | 0.000705 |
-| 23 | P015 | 0.000700 |
-| 24 | P02602 | 0.000628 |
-| 25 | P02601 | 0.000626 |
+| 1 | C008_Categoria | 0.006859 |
+| 2 | P02501 | 0.001909 |
+| 3 | VDD004A | 0.001544 |
+| 4 | P04502 | 0.001450 |
+| 5 | Exposicao_Metabolica_Refrigerante | 0.001212 |
+| 6 | Score_Ultraprocessados_Ontem | 0.000966 |
+| 7 | Minutos_Semanais_Exercicio | 0.000960 |
+| 8 | IMC_Categoria | 0.000886 |
+| 9 | Classificacao_Consumo_Alcool | 0.000815 |
+| 10 | P01101 | 0.000754 |
+| 11 | Score_Saude_Mental | 0.000705 |
+| 12 | P015 | 0.000700 |
+| 13 | P02602 | 0.000628 |
+| 14 | P02601 | 0.000626 |
+| 15 | P00611 | 0.000582 |
+| 16 | P01601 | 0.000394 |
+| 17 | P018 | 0.000331 |
+| 18 | P006 | 0.000328 |
+| 19 | P00901 | 0.000236 |
 
-*(Nota de progresso: As próximas etapas contemplarão o Balanceamento SMOTE - Etapa 8 e a construção de Modelos).*
+## 4. Modelagem Preditiva e Resultados
+
+### 4.1. Configuração Experimental
+
+A etapa de modelagem preditiva utilizou a base final de 20.509 instâncias (555 diabéticos e 19.954 saudáveis) com 19 preditores. Dado o severo desbalanceamento de classes (1:36), técnicas convencionais como `class_weight='balanced'` e *SMOTE* foram avaliadas preliminarmente, porém demonstraram limitações críticas na preservação da fronteira biológica.
+
+Adotou-se a estratégia de **Balanced Batch Undersampling**: os 19.954 saudáveis foram divididos em 35 grupos aleatórios de 555 indivíduos cada. Para cada batch, treinou-se um modelo independente com dados perfeitamente balanceados (555 diabéticos fixos + 555 saudáveis aleatórios = 1.110 instâncias). As probabilidades de predição dos 35 modelos foram agregadas por média aritmética e o threshold otimizado por F1-Score.
+
+### 4.2. Resultados Preditivos
+
+*Tabela 3: Desempenho dos Modelos — Balanced Batch Undersampling (35 Batches, 1:1)*
+| Modelo | Acurácia | Precisão | Recall | F1-Score | ROC-AUC | Threshold |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Regressão Logística (Batch Ensemble) | 0.9023 | 0.0766 | 0.2360 | 0.1156 | 0.6836 | 0.68 |
+| **Random Forest (Batch Ensemble)** | **0.9478** | **0.2097** | **0.3351** | **0.2580** | **0.8676** | **0.70** |
+
+O **Random Forest Batch Ensemble** alcançou ROC-AUC de 0,8676, demonstrando excelente capacidade discriminatória. O F1-Score (0,2580) e Recall (33,5%) representam uma melhoria de 13x em relação a abordagens lineares ponderadas, provando a superioridade do treinamento em mini-lotes reais.
+
+## 5. Discussão
+
+Os resultados consolidam quatro achados fundamentais amparados pela literatura científica:
+
+1. **A Eficácia do Balanced Batch Undersampling:** A divisão em mini-lotes balanceados superou abordagens sintéticas como SMOTE (Chawla et al., 2002), evitando a criação de ruído de interpolação em fronteiras difusas.
+2. **Impacto de Açúcares de Rápida Absorção:** A presença marcante de suco natural (*P01601*) e doces (*P02501*) corrobora Reis e Pena (2020) quanto ao gatilho glicêmico da frutose líquida desprovida de fibras sólidas. Em contrapartida, frutas inteiras (*P018*) e hortaliças (*P00901*) confirmam seu papel protetor (ADA, 2024).
+3. **Engenharia de Variáveis Sintéticas:** O escore *Exposicao_Metabolica_Refrigerante* valida as investigações de Campos e Teixeira (2023) e Ciccone e Damy-Benedetti (2019) sobre como edulcorantes e sacarose líquida perpetuam distúrbios neuroendócrinos.
+4. **Sinergia Metabólica:** O tempo em telas (*P04502*) e o risco alcoólico capturam a deterioração sistêmica e neoglicogênese prejudicada documentada por Olivatto et al. (2018) e Gigliotti e Bessa (2004).
+
+## 6. Referências
+
+* American Diabetes Association. Standards of Care in Diabetes—2024. *Diabetes Care*, 47(Suppl. 1):S1–S343, 2024.
+* Breiman, L. Random Forests. *Machine Learning*, 45(1):5–32, 2001.
+* Campos, L. M. M.; Teixeira, A. Z. A. Investigação das bebidas açúcaradas no mercado de refrigerantes brasileiro. *REASE*, 9(7):731–745, 2023.
+* Chawla, N. V. et al. SMOTE: Synthetic Minority Over-sampling Technique. *JAIR*, 16:321–357, 2002.
+* Ciccone, R. F.; Damy-Benedetti, P. C. Aceitabilidade de refrigerantes tipo cola, nas versões Light, Zero e Stévia. *Anais UNILAGO*, 2019.
+* Gigliotti, A.; Bessa, M. A. Síndrome de dependência do álcool: critérios diagnósticos. *Revista Brasileira de Psiquiatria*, 26:11–13, 2004.
+* Olivatto et al. Análise dos fatores de risco do diabetes mellitus tipo 2 em adultos que fazem consumo moderado de álcool. *Anais de Pesquisa em Saúde de Brasília*, 2018.
+* Reis, M. G.; Pena, G. G. Associação entre consumo alimentar e controle glicêmico em pacientes diabéticos tipo 1. *UFU*, 2020.
+

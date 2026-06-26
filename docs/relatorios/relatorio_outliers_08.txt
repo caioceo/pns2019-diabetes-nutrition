@@ -5,10 +5,10 @@
 RESUMO GERAL
 ────────────────────────────────────────
   Base de entrada:   06_pns2019_prepared.csv (20,509 linhas)
-  Base de saída:     08_pns2019_outliers_treated.csv (20,509 linhas × 74 colunas)
+  Base de saída:     08_pns2019_outliers_treated.csv (20,509 linhas × 60 colunas)
   Linhas removidas:  0 (política de preservação)
-  Variáveis analisadas: 10
-  Winsorizadas: 2 | Flagadas: 3 | Mantidas: 5
+  Variáveis analisadas: 9
+  Winsorizadas: 1 | Flagadas: 2 | Mantidas: 6
 
 VARIÁVEIS RESTAURADAS (correção de bugs do script 04)
 ────────────────────────────────────────────────────────────
@@ -30,14 +30,13 @@ Variável                            Método       Ação           N_out  %_out
 ────────────────────────────────────────────────────────────────────────────────
 V0001                               nenhum       manter             0  0.00%        N/A        N/A
 Q031                                dominio      flag               0  0.00%       0.00      60.00
-P029                                mad          winsorizar      1461  7.12%       0.00       8.28
 VDF003                              mad          flag            1657  8.08%   -1941.95    3817.95
-J012                                percentil    flag             134  0.65%       1.00      12.00
 E017                                percentil    flag             359  1.75%       7.00      70.00
-Calculo_IMC                         dominio      winsorizar         0  0.00%      12.00      70.00
 Score_Ultraprocessados_Ontem        nenhum       manter             0  0.00%        N/A        N/A
 Score_Saude_Mental                  nenhum       manter             0  0.00%        N/A        N/A
 Minutos_Semanais_Exercicio          mad          winsorizar      1655  8.07%       0.00     300.00
+Exposicao_Metabolica_Refrigerante   nenhum       manter             0  0.00%        N/A        N/A
+Classificacao_Consumo_Alcool        nenhum       manter             0  0.00%        N/A        N/A
 
 
 JUSTIFICATIVAS DETALHADAS
@@ -56,13 +55,6 @@ JUSTIFICATIVAS DETALHADAS
     Limites: [0.0000, 60.0000]
     Justificativa: Idade diagnóstico diabetes: range biológico [0, 60] anos; outliers são erro de digitação
 
-  P029:
-    Método: MAD
-    Ação:   WINSORIZAR
-    Outliers: 1461 (7.12%)
-    Limites: [0.0000, 8.2775]
-    Justificativa: Doses de álcool: skew~2.95 no original; MAD robusto; winsorizar extremos; mín=0
-
   VDF003:
     Método: MAD
     Ação:   FLAG
@@ -70,26 +62,12 @@ JUSTIFICATIVAS DETALHADAS
     Limites: [-1941.9505, 3817.9505]
     Justificativa: Renda per capita com skew=8.77 — outliers extremos são reais (alta renda)
 
-  J012:
-    Método: PERCENTIL
-    Ação:   FLAG
-    Outliers: 134 (0.65%)
-    Limites: [1.0000, 12.0000]
-    Justificativa: Consultas médicas: kurtosis~208 com cauda pesada; percentil [P1,P99] conservador
-
   E017:
     Método: PERCENTIL
     Ação:   FLAG
     Outliers: 359 (1.75%)
     Limites: [7.0000, 70.0000]
     Justificativa: Horas de trabalho: valores extremos reais (plantões, dupla jornada)
-
-  Calculo_IMC:
-    Método: DOMINIO
-    Ação:   WINSORIZAR
-    Outliers: 0 (0.00%)
-    Limites: [12.0000, 70.0000]
-    Justificativa: IMC: limites biológicos plausíveis [12, 70] (OMS + extremos clínicos)
 
   Score_Ultraprocessados_Ontem:
     Método: NENHUM
@@ -110,6 +88,18 @@ JUSTIFICATIVAS DETALHADAS
     Limites: [0.0000, 300.0000]
     Justificativa: Distribuição altamente assimétrica (skew~4.1); MAD robusto; mín=0 (tempo)
 
+  Exposicao_Metabolica_Refrigerante:
+    Método: NENHUM
+    Ação:   MANTER
+    Outliers: 0 (0.00%)
+    Justificativa: Escore contínuo limitado [0.0, 14.0] — sem outliers possíveis por construção
+
+  Classificacao_Consumo_Alcool:
+    Método: NENHUM
+    Ação:   MANTER
+    Outliers: 0 (0.00%)
+    Justificativa: Escore categórico ordinal clínico [0, 3] (OMS / Gigliotti & Bessa) — sem outliers possíveis
+
 
 VARIÁVEIS CATEGÓRICAS EXCLUÍDAS DA ANÁLISE
 ────────────────────────────────────────────────────────────
@@ -118,7 +108,6 @@ VARIÁVEIS CATEGÓRICAS EXCLUÍDAS DA ANÁLISE
   C011 (nunique=4)
   E017_outlier_flag (nunique=2)
   I00102 (nunique=2)
-  J012_outlier_flag (nunique=2)
   M005010 (nunique=2)
   P00103_outlier_flag (nunique=2)
   P00104_outlier_flag (nunique=2)
@@ -145,27 +134,15 @@ VARIÁVEIS CATEGÓRICAS EXCLUÍDAS DA ANÁLISE
   P01601 (nunique=8)
   P018 (nunique=8)
   P019 (nunique=4)
-  P02001 (nunique=8)
-  P02002 (nunique=8)
-  P02101 (nunique=3)
-  P02102 (nunique=3)
-  P023 (nunique=8)
-  P02401 (nunique=3)
   P02501 (nunique=8)
   P02601 (nunique=5)
   P02602 (nunique=8)
-  P027 (nunique=3)
-  P02801 (nunique=8)
-  P03201 (nunique=2)
   P036 (nunique=18)
   P038 (nunique=2)
   P039 (nunique=2)
   P040 (nunique=3)
-  P04501 (nunique=6)
   P04502 (nunique=6)
   P050 (nunique=3)
-  Q00101 (nunique=5)
-  Q02901 (nunique=5)
   Q03001 (nunique=2)
   V0026 (nunique=2)
   V0031 (nunique=4)

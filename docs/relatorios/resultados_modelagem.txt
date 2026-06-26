@@ -1,0 +1,64 @@
+================================================================================
+  RELATÓRIO — BALANCED BATCH UNDERSAMPLING | PNS 2019
+================================================================================
+
+Estratégia: 35 batches balanceados 1:1
+Cada batch: 555 diabéticos (fixos) + 555 saudáveis (aleatórios)
+Agregação: Média das probabilidades + threshold otimizado por F1
+
+--------------------------------------------------------------------------------
+Modelo                                        Acc     Prec   Recall       F1      AUC   Thresh
+--------------------------------------------------------------------------------
+Logistic Regression (Batch Ensemble)       0.9023   0.0766   0.2360   0.1156   0.6836     0.68
+Random Forest (Batch Ensemble)             0.9478   0.2097   0.3351   0.2580   0.8676     0.70
+--------------------------------------------------------------------------------
+
+
+--- Logistic Regression ---
+              precision    recall  f1-score   support
+
+    Saudável       0.98      0.92      0.95     19954
+   Diabético       0.08      0.24      0.12       555
+
+    accuracy                           0.90     20509
+   macro avg       0.53      0.58      0.53     20509
+weighted avg       0.95      0.90      0.93     20509
+
+Confusion Matrix:
+[[18374  1580]
+ [  424   131]]
+
+--- Random Forest ---
+              precision    recall  f1-score   support
+
+    Saudável       0.98      0.96      0.97     19954
+   Diabético       0.21      0.34      0.26       555
+
+    accuracy                           0.95     20509
+   macro avg       0.60      0.65      0.62     20509
+weighted avg       0.96      0.95      0.95     20509
+
+Confusion Matrix:
+[[19253   701]
+ [  369   186]]
+
+Feature Importance (top 19):
+  01. C008_Categoria                      0.1300
+  02. Score_Saude_Mental                  0.0697
+  03. P018                                0.0621
+  04. P01601                              0.0620
+  05. P02501                              0.0611
+  06. VDD004A                             0.0591
+  07. P01101                              0.0591
+  08. Exposicao_Metabolica_Refrigerante   0.0586
+  09. P04502                              0.0586
+  10. Score_Ultraprocessados_Ontem        0.0580
+  11. P00901                              0.0530
+  12. IMC_Categoria                       0.0526
+  13. P006                                0.0455
+  14. P015                                0.0447
+  15. Minutos_Semanais_Exercicio          0.0345
+  16. Classificacao_Consumo_Alcool        0.0276
+  17. P00611                              0.0248
+  18. P02601                              0.0232
+  19. P02602                              0.0160

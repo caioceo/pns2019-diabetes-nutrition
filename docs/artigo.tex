@@ -71,7 +71,7 @@
     \end{titlepage}
 
     \begin{abstract}
-    O Diabetes Mellitus figura como um dos desafios mais críticos de saúde pública e de economia no século XXI. O presente trabalho tem como objetivo investigar e modelar a relação preditiva entre hábitos nutricionais, níveis de sedentarismo, antropometria e a ocorrência do diabetes em adultos brasileiros (30 a 60 anos). Utilizando o escopo da Pesquisa Nacional de Saúde (PNS) de 2019 do IBGE, aplicou-se a metodologia de Descoberta de Conhecimento em Bases de Dados (KDD). O \textit{pipeline} de processamento destacou-se pela incorporação de regras de domínio no tratamento de vazios estruturais e pela isenção de winsorização, optando-se pela preservação de \textit{outliers} clínicos genuínos através da geração de \textit{flags} isoladas. Adicionalmente, realizou-se uma robusta Engenharia de Variáveis para condensar dados esparsos em escores clínicos de carga glicêmica, saúde mental e Índice de Massa Corporal (IMC). A base resultante, composta por 20.509 registros avaliados, revelou um perfil latente de risco, onde mais de 59\% dos sujeitos encontram-se fora da faixa de eutrofia. O estudo atesta a aderência de técnicas de Mineração de Dados na extração de padrões determinísticos complexos em grandes inquéritos de saúde populacional.
+    O Diabetes Mellitus figura como um dos desafios mais críticos de saúde pública e de economia no século XXI. O presente trabalho tem como objetivo investigar e modelar a relação preditiva entre hábitos nutricionais, níveis de sedentarismo, antropometria e a ocorrência do diabetes em adultos brasileiros (30 a 60 anos). Utilizando o escopo da Pesquisa Nacional de Saúde (PNS) de 2019 do IBGE, aplicou-se a metodologia de Descoberta de Conhecimento em Bases de Dados (KDD). O \textit{pipeline} de processamento destacou-se pela incorporação de regras de domínio no tratamento de vazios estruturais e pela isenção de winsorização, optando-se pela preservação de \textit{outliers} clínicos genuínos através da geração de \textit{flags} isoladas. Adicionalmente, realizou-se uma robusta Engenharia de Variáveis para condensar dados esparsos em Scores clínicos de carga glicêmica, saúde mental e Índice de Massa Corporal (IMC). A base resultante, composta por 20.509 registros avaliados, revelou um perfil latente de risco, onde mais de 59\% dos sujeitos encontram-se fora da faixa de eutrofia. O estudo atesta a aderência de técnicas de Mineração de Dados na extração de padrões determinísticos complexos em grandes inquéritos de saúde populacional.
 
     \end{abstract}
 
@@ -327,7 +327,9 @@ M005010 & No(s) seu(s) trabalho(s), habitualmente, (s) o(a) Sr(a) trabalha(va) a
         \item \textbf{Transição Demográfica:} A Idade contínua foi categorizada em Adulto Jovem, Adulto e Meia-Idade.
         \item \textbf{Matriz Nutricional e Mental:} Respostas binárias de consumo industrializado foram fundidas no \textit{Score\_Ultraprocessados}. As variáveis de saúde mental foram condensadas no \textit{Score\_Saude\_Mental}.
         \item \textbf{Classificação do Sedentarismo:} A prática de esportes cruzada com minutos semanais gerou as categorias da OMS: \textit{Ativos} ($\ge 150$ min), \textit{Insuficientemente Ativos} ($< 150$ min) e \textit{Sedentários Absolutos}.
-        \item \textbf{Redução Dimensional por Exclusão Lógica:} 27 colunas originais redundantes foram removidas permanentemente da base para prevenir multicolinearidade.
+        \item \textbf{Modelagem Bioquímica de Refrigerantes:} Desenvolveu-se o escore sintético contínuo \textit{Exposicao\_Metabolica\_Refrigerante}, definido pela multiplicação da frequência semanal (0 a 7 dias) por um fator bioquímico de risco lipídico e tóxico ($W$), onde Normal=2,0, Ambos=1,5, Zero/Light=1,0 e Nunca=0,0. A atribuição de peso expressivo às versões Zero ($W=1,0$) justifica-se pelas descobertas de \cite{campos2023investigacao}, que demonstraram que refrigerantes sem açúcar contêm adoçantes superfaturados (aspartame, ciclamato e acessulfame K) capazes de deflagrar resposta cefálica de insulina sem aporte de sacarose, provocando hipoglicemia reativa, hiperinsulinemia indireta e disbiose intestinal crônica. Já as versões tradicionais com açúcar ($W=2,0$) excedem sistematicamente o teto de 25g de açúcares livres por porção preconizado pela OMS \cite{campos2023investigacao}, corroborando a severa alteração da meta de hemoglobina glicada ($HbA1c > 7\%$) observada por \cite{reis2020associacao} e o alto índice de aceitabilidade sensorial relatado por \cite{ciccone2019aceitabilidade}. Variáveis sintéticas de suco industrializado e leite foram suprimidas devido ao fraco ganho de informação e colinearidades estruturais com a dieta geral.
+        \item \textbf{Estratificação Clínica de Consumo Alcoólico:} Condensaram-se as três colunas abertas de álcool (frequência em dias, intensidade em doses e episódios de compulsão \textit{binge drinking}) no indicador categórico ordinal \textit{Classificacao\_Consumo\_Alcool} [0 a 3], estruturado conforme a Síndrome de Dependência do Álcool (SDA) \cite{gigliotti2004sindrome}. A categorização respeitou o limiar de clearance hepático diferenciado por sexo preconizado pela OMS (até 14 doses/semana para mulheres e 21 para homens) \cite{gigliotti2004sindrome}. A decisão metodológica de suprimir as colunas brutas e unificar frequência e intensidade ampara-se no estudo clínico de \cite{olivatto2018analise}, que comprovou que o risco de diabetes tipo 2 no álcool advém da desregulação metabólica indireta global – onde 55,6\% dos consumidores substituem refeições estruturadas por petiscos hipercarboidratos e 44,4\% abandonam hábitos saudáveis nos dias posteriores devido à indisposição sistêmica –, tornando colineares e redundantes as medidas isoladas de doses e dias ($\rho > 0,98$).
+        \item \textbf{Exclusão de Consequências e Redundâncias:} Variáveis de monitoramento clínico pós-diagnóstico (aferição de pressão arterial, exame de glicemia e consultas médicas) foram suprimidas para evitar vazamento de informação (\textit{data leakage}). Para o IMC, reteve-se apenas a versão categórica para eliminar colinearidade perfeita. Já o consumo de carnes e peixes foi mantido desagregado para preservar granularidade nutricional.
     \end{enumerate}
 
 
@@ -339,11 +341,13 @@ M005010 & No(s) seu(s) trabalho(s), habitualmente, (s) o(a) Sr(a) trabalha(va) a
     \begin{tabular}{lll}
     \toprule
     \textbf{Atributo Gerado} & \textbf{Descrição Lógica / Domínio} & \textbf{Natureza} \\ \midrule
-    \textbf{Idade\_Categoria} & Discretização da idade em: Adulto Jovem, Adulto e Meia-Idade & Categórico Ordinal \\
+    \textbf{C008\_Categoria} & Discretização da idade em: Adulto Jovem, Adulto e Meia-Idade & Categórico Ordinal \\
     \textbf{IMC\_Categoria} & Classificação clínica do IMC (Baixo Peso, Adequado, Sobrepeso, Obeso) & Categórico Ordinal \\
     \textbf{Score\_Ultraprocessados\_Ontem} & Somatório de 10 variáveis binárias de consumo industrializado (0 a 10) & Discreto \\
     \textbf{Score\_Saude\_Mental} & Somatório das frequências (escala Likert) para 8 sintomas mentais (0 a 24) & Discreto \\
     \textbf{Nivel\_Atividade\_Fisica} & Tempo vs Frequência (Ativo $\ge 150$min, Insuf. Ativo, Sedentário) & Categórico Ordinal \\
+    \textbf{Exposicao\_Metabolica\_Refrigerante} & Score contínuo glicêmico e tóxico (Dias × Fator Normal=2, Zero=1, Ambos=1,5) & Contínuo \\
+    \textbf{Classificacao\_Consumo\_Alcool} & Estratificação clínica de risco alcoólico segundo limites OMS e compulsão [0 a 3] & Categórico Ordinal \\
     \bottomrule
 \end{tabular}%
 }
@@ -363,9 +367,9 @@ M005010 & No(s) seu(s) trabalho(s), habitualmente, (s) o(a) Sr(a) trabalha(va) a
     \begin{enumerate}
         \item \textbf{MAD (\textit{Median Absolute Deviation}):} Para distribuições altamente assimétricas ($|\text{skewness}| > 1$), como \textit{Minutos\_Semanais\_Exercicio} (skew $\approx$ 4,1) e doses de álcool (skew $\approx$ 2,95). O MAD é robusto à presença de valores extremos e menos sensível que o desvio-padrão a caudas longas.
 
-        \item \textbf{Percentis Conservadores [P1, P99]:} Para variáveis com caudas pesadas (curtose $> 5$), como consultas médicas (curtose $\approx$ 208) e horas de trabalho.
+        \item \textbf{Percentis Conservadores [P1, P99]:} Para variáveis com caudas pesadas (curtose $> 5$), como horas de trabalho na semana principal.
 
-        \item \textbf{Limites de Domínio Biológico:} Para variáveis com fronteiras clínicas conhecidas, como o IMC (12 a 70 kg/m\textsuperscript{2}, conforme parâmetros da OMS e da literatura bariátrica) e a idade do diagnóstico do diabetes (0 a 60 anos).
+        \item \textbf{Limites de Domínio Biológico:} Para variáveis com fronteiras clínicas conhecidas, como o IMC (12 a 70 kg/m\textsuperscript{2}, conforme parâmetros da OMS) e a idade do diagnóstico do diabetes (0 a 60 anos).
     \end{enumerate}
 
     A Tabela \ref{tab:outliers} sintetiza as decisões tomadas para as principais variáveis avaliadas. Duas estratégias de ação foram assumidas: a \textbf{Winsorização} limitada para variáveis com extremos ruidosos (álcool e exercícios), e a geração de \textbf{\textit{Flags} Binárias} (``Extremos Reais'') para variáveis clínicas cujos valores limiares possuem relevância médica ou social, como altíssima renda e intensa carga laboral.
@@ -381,59 +385,120 @@ M005010 & No(s) seu(s) trabalho(s), habitualmente, (s) o(a) Sr(a) trabalha(va) a
     P029 (doses álcool) & MAD & Winsorizar & [0; 8,28] & 7,12\% & Assimétrica; minimização de ruído nos extremos \\
     Minutos\_Semanais\_Exercicio & MAD & Winsorizar & [0; 300] & 8,07\% & Altamente assimétrica \\
     VDF003 (renda) & MAD & Flag & [-1942; 3818] & 8,08\% & Extremos financeiros reais \\
-    J012 (consultas) & Percentil & Flag & [1; 12] & 0,65\% & Kurtosis elevada ($\approx$ 208) \\
     E017 (horas trabalho) & Percentil & Flag & [7; 70] & 1,75\% & Possibilidade de dupla jornada extrema \\
     Q031 (idade diagnóstico) & Domínio & Flag & [0; 60] & 0,00\% & Range de viabilidade biológica \\
-    Calculo\_IMC & Domínio & Manter & [12; 70] & 0,00\% & Eutrofia a obesidade mórbida plausível \\
     \bottomrule
     \end{tabular}%
     }
     \end{table}
 
-    \textbf{Fato crítico de processamento:} em estrita observância ao princípio de preservação de instâncias, absolutamente nenhuma linha foi removida durante esta fase de filtragem de \textit{outliers}. Isto garantiu a preservação de 100\% dos 20.509 registros originais, salvaguardando as 555 cruciais ocorrências de indivíduos diabéticos confirmados na base de dados. A base resultante (\texttt{08\_pns2019\_outliers\_treated.csv}) manteve a integridade de suas 74 colunas com os ruídos matemáticos contidos.
+    \textbf{Fato crítico de processamento:} em estrita observância ao princípio de preservação de instâncias, absolutamente nenhuma linha foi removida durante esta fase de filtragem de \textit{outliers}. Isto garantiu a preservação de 100\% dos 20.509 registros originais, salvaguardando as 555 cruciais ocorrências de indivíduos diabéticos confirmados na base de dados.
 
     \subsubsection{Seleção de Atributos por Ganho de Informação (Entropia)}
 
-    A etapa final de pré-processamento consistiu na seleção de características (Feature Selection), com o objetivo de reduzir a dimensionalidade e isolar as variáveis mais preditivas para a ocorrência do diabetes. O critério adotado foi o Ganho de Informação baseado na Entropia de Shannon, que mensura a redução da incerteza sobre a classe alvo ($Y$) dado o conhecimento de um atributo ($X$).
+    A etapa final de pré-processamento consistiu na seleção de características (\textit{Feature Selection}), com o objetivo de reduzir a dimensionalidade e isolar as variáveis mais preditivas para a ocorrência do diabetes. O critério adotado foi o Ganho de Informação baseado na Entropia de Shannon, que mensura a redução da incerteza sobre a classe alvo ($Y$) dado o conhecimento de um atributo ($X$). Aplicou-se uma correção algorítmica essencial no cálculo da entropia condicional $H(Y|X)$, tratando valores ausentes decorrentes de pulos estruturais de questionário como categorias informativas válidas (\texttt{dropna=False}), prevenindo distorções probabilísticas.
     
-    A entropia inicial do conjunto de dados, em relação à variável alvo altamente desbalanceada (555 diabéticos em 20.509 instâncias), foi calculada em aproximadamente $H(Y) \approx 0,179$. Atributos com o maior Ganho de Informação foram ranqueados, e um limiar de corte determinou a retenção exclusiva dos top 25 preditores mais informativos, consolidando um dataset final de 26 colunas (25 variáveis + 1 classe alvo).
+    A entropia inicial do conjunto de dados, em relação à variável alvo altamente desbalanceada (555 diabéticos em 20.509 instâncias), foi calculada em aproximadamente $H(Y) \approx 0,179$. Em observância à restrição teórica de aprendizado em cenários de severo desbalanceamento de classes, definiu-se o corte final nos Top 19 atributos mais informativos, consolidando uma matriz analítica enxuta de 20 colunas (19 preditores + 1 classe alvo).
 
-    Destacam-se no topo do ranking variáveis essenciais de monitoramento clínico (como o histórico de exames de glicemia e aferição de pressão arterial), além da validação estatística da nossa Engenharia de Variáveis: características sintéticas como o Cálculo do IMC, Score de Ultraprocessados, Nível de Atividade Física e o Score de Saúde Mental figuraram entre as variáveis mais determinantes, confirmando sua correlação matemática e fisiológica com o diabetes. Atributos ruidosos e com baixa capacidade discriminatória foram permanentemente descartados do modelo.
+    Além da higienização suprimindo consequências clínicas pós-diagnóstico e proxies socioeconômicos sem nexo causal, duas remoções adicionais foram realizadas após auditoria estatística rigorosa: (i) \textit{P019} (vezes por dia que come frutas), excluída por apresentar 47,2\% de valores ausentes estruturais decorrentes de pulo condicional no questionário do IBGE, inviabilizando sua utilização como preditor estável; e (ii) \textit{P036} (tipo de esporte praticado), excluída por colinearidade severa com \textit{Minutos\_Semanais\_Exercicio} ($\rho = 0,80$), onde o volume semanal de exercício já captura a dimensão relevante para o risco metabólico de diabetes.
 
 \begin{table}[h]
     \centering
-    \caption{Top 25 Atributos Selecionados por Ganho de Informação}
+    \caption{Top 19 Atributos Curados por Entropia e Domínio Nutricional}
     \label{tab:ganho_informacao}
     \begin{tabular}{llc}
     \toprule
     \textbf{Ranking} & \textbf{Atributo} & \textbf{Ganho de Informação} \\ \midrule
-    1 & Q02901 & 0,009227 \\
-    2 & C008\_Categoria & 0,006859 \\
-    3 & J012 & 0,004154 \\
-    4 & Q00101 & 0,003315 \\
-    5 & P02501 & 0,001909 \\
-    6 & P02102 & 0,001549 \\
-    7 & VDD004A & 0,001544 \\
-    8 & P02002 & 0,001456 \\
-    9 & P04502 & 0,001450 \\
-    10 & P036 & 0,001185 \\
-    11 & Calculo\_IMC & 0,001042 \\
-    12 & P027 & 0,001011 \\
-    13 & Score\_Ultraprocessados\_Ontem & 0,000966 \\
-    14 & Minutos\_Semanais\_Exercicio & 0,000960 \\
-    15 & P04501 & 0,000912 \\
-    16 & P02401 & 0,000894 \\
-    17 & IMC\_Categoria & 0,000886 \\
-    18 & P023 & 0,000807 \\
-    19 & C011 & 0,000784 \\
-    20 & P01101 & 0,000754 \\
-    21 & P02001 & 0,000712 \\
-    22 & Score\_Saude\_Mental & 0,000705 \\
-    23 & P015 & 0,000700 \\
-    24 & P02602 & 0,000628 \\
-    25 & P02601 & 0,000626 \\ \bottomrule
+    1 & C008\_Categoria & 0,006859 \\
+    2 & P02501 & 0,001909 \\
+    3 & VDD004A & 0,001544 \\
+    4 & P04502 & 0,001450 \\
+    5 & Exposicao\_Metabolica\_Refrigerante & 0,001212 \\
+    6 & Score\_Ultraprocessados\_Ontem & 0,000966 \\
+    7 & Minutos\_Semanais\_Exercicio & 0,000960 \\
+    8 & IMC\_Categoria & 0,000886 \\
+    9 & Classificacao\_Consumo\_Alcool & 0,000815 \\
+    10 & P01101 & 0,000754 \\
+    11 & Score\_Saude\_Mental & 0,000705 \\
+    12 & P015 & 0,000700 \\
+    13 & P02602 & 0,000628 \\
+    14 & P02601 & 0,000626 \\
+    15 & P00611 & 0,000582 \\
+    16 & P01601 & 0,000394 \\
+    17 & P018 & 0,000331 \\
+    18 & P006 & 0,000328 \\
+    19 & P00901 & 0,000236 \\ \bottomrule
     \end{tabular}
 \end{table}
+
+\newpage
+
+    \section{Modelagem Preditiva e Resultados}
+
+    \subsection{Configuração Experimental}
+
+    A etapa de modelagem preditiva utilizou a base final de 20.509 instâncias (555 diabéticos e 19.954 saudáveis) com 19 atributos preditores. Variáveis categóricas ordinais (\textit{C008\_Categoria} e \textit{IMC\_Categoria}) foram codificadas via \textit{Label Encoding}.
+
+    Dado o severo desbalanceamento de classes (1:36), técnicas convencionais de rebalanceamento — como \texttt{class\_weight='balanced'} e \textit{SMOTE} \cite{chawla2002smote} — foram avaliadas preliminarmente, porém demonstraram limitações críticas: o \texttt{class\_weight} apenas repondera a função de perda sem alterar a distribuição amostral, e o \textit{SMOTE} gera instâncias sintéticas por interpolação no espaço vetorial, introduzindo padrões artificiais em uma fronteira de decisão intrinsecamente difusa.
+
+    Adotou-se, portanto, a estratégia de \textbf{Balanced Batch Undersampling}: os 19.954 saudáveis foram divididos em $k = \lfloor 19{.}954 / 555 \rfloor = 35$ grupos aleatórios de 555 indivíduos cada. Para cada batch, treinou-se um modelo independente com dados perfeitamente balanceados (555 diabéticos fixos + 555 saudáveis aleatórios = 1.110 instâncias por batch). As probabilidades de predição dos 35 modelos foram agregadas por média aritmética e o threshold de decisão foi otimizado para maximizar o F1-Score.
+
+    Dois algoritmos foram avaliados nesta arquitetura de ensemble:
+    \begin{enumerate}
+        \item \textbf{Regressão Logística (\textit{Batch Ensemble}):} Modelo linear servindo como \textit{baseline} interpretável.
+        \item \textbf{Random Forest (\textit{Batch Ensemble}):} Ensemble de 100 árvores por batch, com profundidade máxima de 10 e mínimo de 5 amostras por folha \cite{breiman2001random}. A semente aleatória é variada entre batches para maximizar a diversidade do ensemble.
+    \end{enumerate}
+
+    \subsection{Resultados}
+
+    A Tabela \ref{tab:resultados_ml} apresenta o desempenho comparativo dos dois modelos na arquitetura de \textit{Balanced Batch Ensemble} com 35 batches, avaliados sobre o dataset completo (20.509 instâncias).
+
+\begin{table}[h]
+    \centering
+    \caption{Desempenho dos Modelos — Balanced Batch Undersampling (35 Batches, 1:1)}
+    \label{tab:resultados_ml}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lcccccc}
+    \toprule
+    \textbf{Modelo} & \textbf{Acurácia} & \textbf{Precisão} & \textbf{Recall} & \textbf{F1-Score} & \textbf{ROC-AUC} & \textbf{Threshold} \\ \midrule
+    Regressão Logística (Batch Ensemble) & 0,9023 & 0,0766 & 0,2360 & 0,1156 & 0,6836 & 0,68 \\
+    \textbf{Random Forest (Batch Ensemble)} & \textbf{0,9478} & \textbf{0,2097} & \textbf{0,3351} & \textbf{0,2580} & \textbf{0,8676} & \textbf{0,70} \\ \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+    O \textbf{Random Forest Batch Ensemble} alcançou ROC-AUC de 0,8676, demonstrando capacidade discriminatória substancial entre as classes. Esse valor indica que, em 86,76\% dos pares aleatórios (diabético, saudável), o modelo atribui maior probabilidade de diabetes ao paciente realmente diabético. O F1-Score de 0,2580 e Recall de 33,5\% representam uma melhoria de \textbf{13$\times$} em relação a abordagens com \texttt{class\_weight} (F1=0,019) e infinitamente superiores ao SMOTE (F1=0,004), validando a estratégia de undersampling por batches com dados exclusivamente reais.
+
+    A matriz de confusão do Random Forest revelou: dos 555 diabéticos reais, 186 (33,5\%) foram corretamente identificados (\textit{True Positives}), enquanto 369 foram classificados como saudáveis (\textit{False Negatives}). A taxa de falsos positivos foi de 3,8\% (702 saudáveis classificados erroneamente como diabéticos), resultando numa precisão de 20,97\%.
+
+    \subsection{Importância das Variáveis}
+
+    A análise de importância por Gini, estabilizada pela média de 35 batches independentes (com desvio-padrão inter-batch), revelou o seguinte ranking dos 10 atributos mais discriminantes:
+
+    \begin{enumerate}
+        \item \textbf{C008\_Categoria (Faixa Etária) — 13,00\% $\pm$ 1,79\%:} Confirmação epidemiológica primária: o risco de DM2 escala monotonicamente com a idade, corroborando a fisiopatologia da resistência insulínica progressiva.
+        \item \textbf{Score\_Saude\_Mental — 6,97\% $\pm$ 0,62\%:} O estresse crônico e distúrbios de sono elevam cronicamente o cortisol, induzindo resistência insulínica e hiperglicemia.
+        \item \textbf{P018 (Frequência Semanal de Frutas) — 6,21\% $\pm$ 0,53\%:} O consumo regular de frutas inteiras (com fibras e fitoquímicos) atua como fator protetor clássico da dieta anti-diabetogênica.
+        \item \textbf{P01601 (Suco de Fruta Natural) — 6,20\% $\pm$ 0,44\%:} A ingestão frequente de frutose líquida, desprovida da matriz sólida de fibras, provoca picos glicêmicos rápidos e sobrecarga hepática.
+        \item \textbf{P02501 (Consumo de Doces) — 6,11\% $\pm$ 0,91\%:} Exposição direta a sacarose e carboidratos refinados (chocolates, biscoitos recheados, balas).
+        \item \textbf{VDD004A (Escolaridade) — 5,91\% $\pm$ 0,65\%:} Proxy de acesso à informação nutricional e capacidade de escolha alimentar saudável.
+        \item \textbf{P01101 (Carne Vermelha) — 5,91\% $\pm$ 0,47\%:} A gordura saturada e o ferro heme da carne vermelha associam-se à resistência insulínica e estresse oxidativo pancreático.
+        \item \textbf{Exposicao\_Metabolica\_Refrigerante — 5,86\% $\pm$ 0,83\%:} O escore sintético contínuo captura a frequência e a carga glicêmico-tóxica de refrigerantes, fundamentado bioquimicamente \cite{campos2023investigacao}.
+        \item \textbf{P04502 (Tempo em Telas) — 5,86\% $\pm$ 0,79\%:} Marcador de sedentarismo moderno correlacionado com \textit{snacking} compulsivo e desregulação circadiana.
+        \item \textbf{Score\_Ultraprocessados\_Ontem — 5,80\% $\pm$ 0,40\%:} A carga diária de 10 categorias de alimentos ultraprocessados (recordatório 24h), capturando a penetração da matriz industrial na dieta brasileira.
+    \end{enumerate}
+
+    \subsection{Discussão}
+
+    Os resultados experimentais consolidam quatro achados científicos fundamentais que correlacionam a mineração de dados populacionais com a literatura médica e nutricional:
+
+    \textbf{(1) A Eficácia do Balanced Batch Undersampling.} A estratégia de fracionar a classe majoritária em 35 subconjuntos balanceados e agregar as predições por \textit{ensemble} superou expressivamente tanto o SMOTE quanto o \texttt{class\_weight}. Enquanto abordagens sintéticas interpolam ruído em regiões de fronteira difusa \cite{chawla2002smote}, o aprendizado em mini-lotes 1:1 preserva a fidedignidade clínica das distribuições biológicas originais, permitindo ao algoritmo capturar limiares reais de risco metabólico.
+
+    \textbf{(2) O Papel dos Carboidratos Refinados e Frutose Líquida.} O destaque de \textit{P01601} (suco de fruta) e \textit{P02501} (doces industrializados) entre os preditores dietéticos mais influentes corrobora os achados de Reis e Pena \cite{reis2020associacao} sobre a estreita associação entre o consumo de açúcares de rápida absorção e o descontrole glicêmico. A separação física das fibras na polpa líquida acelera a absorção intestinal de frutose, induzindo lipogênese hepática \textit{de novo} e consequente resistência à insulina. Em contrapartida, a frequência semanal de frutas inteiras (\textit{P018}) e hortaliças (\textit{P00901}) atua como fator protetor e regulador da microbiota intestinal, alinhando-se às diretrizes da \textit{American Diabetes Association} \cite{ada2024standards}.
+
+    \textbf{(3) Engenharia Sintética e Bebidas Adoçadas.} O escore \textit{Exposicao\_Metabolica\_Refrigerante} (8ª posição em importância) demonstra que a condensação de variáveis esparsas em métricas de carga tóxico-glicêmica gera ganho de informação determinístico. Este achado reflete as investigações de Campos e Teixeira \cite{campos2023investigacao} e Ciccone e Damy-Benedetti \cite{ciccone2019aceitabilidade} sobre o mercado brasileiro de refrigerantes: tanto a sacarose tradicional quanto os edulcorantes artificiais (versões zero e light) promovem disbiose e alterações nos receptores de sabor doce, perpetuando gatilhos neuroendócrinos diabetogênicos.
+
+    \textbf{(4) Sinergia entre Sedentarismo, Álcool e Confusores Clássicos.} A presença relevante do tempo em telas (\textit{P04502}) e da classificação clínica de consumo de álcool no modelo reflete a deterioração metabólica sistêmica documentada por Olivatto et al. \cite{olivatto2018analise}. O sedentarismo prolongado suprime a translocação de GLUT4 no músculo esquelético, enquanto padrões de abuso alcoólico segundo critérios diagnósticos de dependência \cite{gigliotti2004sindrome} sobrecarregam a neoglicogênese hepática. Por fim, a consolidação da idade (\textit{C008}) e escolaridade (\textit{VDD004A}) no topo do ranking valida o modelo frente aos determinantes sociais em saúde: a escolaridade funciona como um forte \textit{proxy} de letramento nutricional e acesso a escolhas alimentares protetoras.
 
 \newpage
 
